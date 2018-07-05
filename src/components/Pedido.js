@@ -18,11 +18,13 @@ export class Pedido extends Component {
     state = {
         descontoVisible: false,
         isLoading: false,
+        isLoadingOrcamento: false,
         idPedido: 0,
         idUsuario: 0,
         numPedido: 0,
         descontoComercial: 0,
         modalVisible: false,
+        txtAlert: "Pedido",
         currentPedido: {
             observacoes: '',
         },
@@ -105,19 +107,8 @@ export class Pedido extends Component {
             }, DbError);
         }, DbError);
     }
-    salvaOrcamentoPressed = async () => {
-        await this.salvaOrcamento();
-        setTimeout(() => { Actions.listagem(); }, 300);
-
-    }
-    _enviar = async () => {
-        if (!this.state.isLoading) {
-
-
-            this.setState({ isLoading: true });
-            await this.salvaOrcamento();
-
-            let produtosCalculados = [];
+    _preparaObjeto = async () => {
+        let produtosCalculados = [];
             let parcelas = [];
 
             this.state.currentPedido.produtos.map((el, i) => {
@@ -161,7 +152,7 @@ export class Pedido extends Component {
             };
 
 
-            const obj = {
+            return {
                 id_local: this.state.idPedido,
                 id_pedidos: this.state.numPedido,
                 produtos: pedidoCompleto,
@@ -176,6 +167,43 @@ export class Pedido extends Component {
                 versao: this.props.Versao,
                 versaodata: this.props.VersaoData,
             };
+
+    }
+    salvaOrcamentoPressed = async () => {
+        // setTimeout(() => { Actions.listagem(); }, 300);
+        if (!this.state.isLoadingOrcamento) {
+            await this.salvaOrcamento();
+            this.setState({ isLoadingOrcamento: true });
+
+            const obj = await this._preparaObjeto();
+
+            console.log(obj);
+
+            let url = `${this.props.UrlServer}app/sendMail-json.php?orcamento=1`;
+            console.log(url);
+            const pingCall = await fetch(url, {
+                method: 'post',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ object: obj })
+            });
+            const retJson = await pingCall.json();
+            console.log(retJson);
+            this.setState({ isLoadingOrcamento: false, modalVisible: true ,txtAlert:"Orçamento"});
+
+        }
+
+    }
+    _enviar = async () => {
+        if (!this.state.isLoading) {
+
+
+            this.setState({ isLoading: true });
+            await this.salvaOrcamento();
+
+            const obj = await this._preparaObjeto();
 
             console.log(obj);
 
@@ -202,7 +230,7 @@ export class Pedido extends Component {
                     tx.executeSql(query, [], (tx, res) => {
                         console.log("rowsAffected: " + res.rowsAffected + " -- pedido Saved");
 
-                        this.setState({ isLoading: false, modalVisible: true });
+                        this.setState({ isLoading: false, modalVisible: true,txtAlert:"Pedido" });
                     }, DbError);
                 }, DbError);
             }
@@ -320,7 +348,7 @@ export class Pedido extends Component {
 
     render() {
         // console.log(this.state.currentPedido);
-        const { isLoading } = this.state;
+        const { isLoading,isLoadingOrcamento } = this.state;
 
         return (
             <View style={styles.containerWithHeader} >
@@ -474,12 +502,21 @@ export class Pedido extends Component {
                         )}
                         <View style={[styles.rightBtns]}>
                             <TouchableOpacity style={styles.saveButton} onPress={this.salvaOrcamentoPressed.bind(this)} >
-                                <Text style={styles.buttonText} >Salvar Orçamento</Text>
+                                {!isLoadingOrcamento && (
+                                    <Text style={styles.buttonText} >Enviar Orçamento</Text>                                    
+                                )}
+                                {isLoadingOrcamento && (
+                                    <ActivityIndicator
+
+                                        color="#fff"
+
+                                    />
+                                )}
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.sendButton} onPress={this._enviar.bind(this)} >
 
                                 {!isLoading && (
-                                    <Text style={styles.buttonText} >Enviar</Text>
+                                    <Text style={styles.buttonText} >Enviar Pedido</Text>
                                 )}
 
                                 {isLoading && (
@@ -508,7 +545,7 @@ export class Pedido extends Component {
 
 
                             <Image source={require('../images/logo_escura.png')} style={{ width: 200, height: 62 }} />
-                            <Text style={styles.alertPedidoTitle}>Pedido enviado com sucesso!</Text>
+                            <Text style={styles.alertPedidoTitle}>{this.state.txtAlert} enviado com sucesso!</Text>
                             <Text style={styles.alertPedidoPergunta}>Deseja retornar para tela inicial?</Text>
                             <View style={styles.alertPedidoButtomBox}>
                                 <TouchableOpacity style={[styles.saveButton, { width: 100 }]} onPress={() => { this.setState({ modalVisible: false }) }} >
