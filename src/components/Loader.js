@@ -81,6 +81,9 @@ export  class Loader extends Component {
                 // console.log(objItens); 
 
                 // let url = `${this.props.UrlServer}ping.php?tabelas=${JSON.stringify(objItens)}`;
+                try{
+
+                
                 let url = `${this.props.UrlServer}ping-json.php?tabelas=${JSON.stringify(objItens)}`;
                 console.log(url); 
                 const pingCall = await fetch(url);
@@ -114,6 +117,11 @@ export  class Loader extends Component {
 
                     this._downloadImages(); 
                 }
+            }catch(e){
+                console.log("NOT CONNECTED!!!!");
+                this._showLogin();
+                // console.log(e);
+            }
 
                
 
@@ -251,7 +259,7 @@ export  class Loader extends Component {
 
 
         
-      };
+      }; 
 
     render() {
     

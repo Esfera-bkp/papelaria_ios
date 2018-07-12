@@ -31,7 +31,7 @@ export default class App extends Component {
       
         <Router  >
           <Scene key="root">
-            <Scene key="inicial" initial hideNavBar component={Inicial}  title="Login" />            
+            <Scene key="inicial"  hideNavBar component={Inicial}  title="Login" />            
             <Scene key="listagem"    hideNavBar component={Listagem} title="Listagem" />
             <Scene key="cliente"  hideNavBar component={Cliente}  title="Cliente" />
             <Scene key="pagamento"  hideNavBar component={Pagamento}  title="Cliente" />
