@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 
-import { View, ScrollView, Text, TouchableOpacity, AsyncStorage } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity, AsyncStorage,Alert,Image } from 'react-native';
 
 import { connect } from 'react-redux';
 
 import { Actions } from 'react-native-router-flux';
 
-import { getInstance, DbError } from '../classes/DbManager';
+import { getInstance, DbError,salvaOrcamento } from '../classes/DbManager';
 
 
 import styles from '../Styles'
@@ -25,6 +25,8 @@ export class Cliente extends Component {
             cliente: {},
             representante: {}
         },
+        entregaMesmoEndereco:false,
+        cobrancaMesmoEndereco:false,
         representante: {},
         cliente: {},
         representantes: [],
@@ -101,6 +103,7 @@ export class Cliente extends Component {
                             if (this.usuario.representante_id == item.id) {
                                 repArray.push(item);
                                 if(!this.state.currentPedido.representante.id){
+                                    console.log('entrou');
                                     this.refs.representantes.updateLabel(item.nome);
                                     this._representanteChanged(item);
                                 }
@@ -209,11 +212,12 @@ export class Cliente extends Component {
         
 
     }
-    _ufChanged = (uf) => {
+    _ufChanged = async (uf) => {
         let curPed = { ...this.state.currentPedido };
         curPed.cliente.estado_nome = this._getUfName(uf.id);
         curPed.cliente.uf_id = uf.id;        
-        this.setState({ currentPedido: curPed });
+        await this.setState({ currentPedido: curPed });
+        this._verificaEnderecos();
         
     }
     _ufEntregaChanged = (uf) => {
@@ -232,8 +236,8 @@ export class Cliente extends Component {
     }
     _regimeFiscalChanged = (regimeFiscal) => {
         let curPed = { ...this.state.currentPedido };
-        curPed.cliente.tributo_id = tributo_id;
-        curPed.cliente.regime_fiscal_nome = this._tributoName(curPed.cliente.tributo_id);
+        curPed.cliente.tributo_id = regimeFiscal.key;
+        curPed.cliente.regime_fiscal_nome = this._tributoName(regimeFiscal.key);
         this.setState({ currentPedido: curPed });
         
     }
@@ -298,7 +302,35 @@ export class Cliente extends Component {
         this.refs.tributos.updateLabel(cliente.regime_fiscal_nome);
 
     }
-    _setaTexto =  (txt, campo) => {
+    _verificaEnderecos = () => {
+        let curPed = { ...this.state.currentPedido };
+        let alterou = false;
+        if(this.state.entregaMesmoEndereco){
+            alterou = true;
+            curPed.cliente.entrega_endereco     = curPed.cliente.endereco;
+            curPed.cliente.entrega_bairro       = curPed.cliente.bairro;
+            curPed.cliente.entrega_cidade       = curPed.cliente.cidade;
+            curPed.cliente.entrega_uf_id        = curPed.cliente.uf_id;
+            curPed.cliente.entrega_cep          = curPed.cliente.cep;
+            curPed.cliente.entrega_numero       = curPed.cliente.numero;
+            curPed.cliente.entrega_estado_nome  = curPed.cliente.estado_nome;
+        }
+        
+        if(this.state.cobrancaMesmoEndereco){
+            alterou = true;
+            curPed.cliente.cobranca_endereco     = curPed.cliente.endereco;
+            curPed.cliente.cobranca_bairro       = curPed.cliente.bairro;
+            curPed.cliente.cobranca_cidade       = curPed.cliente.cidade;
+            curPed.cliente.cobranca_uf_id        = curPed.cliente.uf_id;
+            curPed.cliente.cobranca_cep          = curPed.cliente.cep;
+            curPed.cliente.cobranca_numero       = curPed.cliente.numero;
+            curPed.cliente.cobranca_estado_nome  = curPed.cliente.estado_nome;
+        }
+        if(alterou){
+            this.setState({ currentPedido: curPed });
+        }
+    }
+    _setaTexto =  async (txt, campo) => {
         // console.log(this.state.currentPedido);
 
         let curPed = { ...this.state.currentPedido };
@@ -355,7 +387,9 @@ export class Cliente extends Component {
         }
 
 
-        this.setState({ currentPedido: curPed });
+        await this.setState({ currentPedido: curPed });
+
+        this._verificaEnderecos();
 
     }
     _buscaCep = async (cep,tipo) => {
@@ -397,13 +431,65 @@ export class Cliente extends Component {
             this.setState({ currentPedido: curPed });
         }
     }
-    _submit = () => {
-        AsyncStorage.setItem("@OTIMA.currentPedido",JSON.stringify(this.state.currentPedido));
-        Actions.pagamento();
+    _submit = async () => {
+
+        if( this._validaCampos()){
+            
+            AsyncStorage.setItem("@OTIMA.currentPedido",JSON.stringify(this.state.currentPedido));
+            salvaOrcamento(this.state.currentPedido);
+            Actions.pagamento();
+        }else{
+            Alert.alert(
+                'Atenção',
+                'Preencha os campos obrigatórios marcados com *',
+                [
+                  
+                  {text: 'Ok', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                  
+                ],
+                { cancelable: true }
+              )
+        }
+    }
+    _validaCampos = ()=>{
+        // elefone direto, fantasia, CNPJ, CEP, Estado e Regime Fiscal
+        
+        if(!this.state.currentPedido || !this.state.currentPedido.cliente){
+            return false;
+        }
+        if(!this.state.currentPedido.cliente.cnpj || this.state.currentPedido.cliente.cnpj == ''){return false;}
+        if(!this.state.currentPedido.cliente.telefone_direto_contato || this.state.currentPedido.cliente.telefone_direto_contato == ''){return false;}
+        if(!this.state.currentPedido.cliente.fantasia || this.state.currentPedido.cliente.fantasia == ''){return false;}
+        if(!this.state.currentPedido.cliente.nome_contato || this.state.currentPedido.cliente.nome_contato == ''){return false;}
+        if(!this.state.currentPedido.cliente.email_contato || this.state.currentPedido.cliente.email_contato == ''){return false;}
+        if(!this.state.currentPedido.cliente.cep || this.state.currentPedido.cliente.cep == ''){return false;}
+        if(!this.state.currentPedido.cliente.estado_nome || this.state.currentPedido.cliente.estado_nome == ''){return false;}
+        if(!this.state.currentPedido.cliente.regime_fiscal_nome || this.state.currentPedido.cliente.regime_fiscal_nome == ''){return false;}
+        return true;
+        
+    }
+    changeMesmoEntrega = async() => {
+        if(!this.state.entregaMesmoEndereco){
+            await this.setState({entregaMesmoEndereco:true});
+            this._verificaEnderecos();
+        }else{
+            this.setState({entregaMesmoEndereco:false});
+
+        }
+    }
+    changeMesmoCobranca = async () => {
+        if(!this.state.cobrancaMesmoEndereco){
+            await  this.setState({cobrancaMesmoEndereco:true});
+            this._verificaEnderecos();
+        }else{
+            this.setState({cobrancaMesmoEndereco:false});
+
+        }
     }
 
-    render() {
 
+    render() {
+        const { entregaMesmoEndereco,cobrancaMesmoEndereco } = this.state;
         return (
             <View style={styles.containerWithHeader} >
                 <View style={styles.header} >
@@ -471,7 +557,7 @@ export class Cliente extends Component {
                         <TextField labelText="Email *" placeholder="" col="6" onChange={(txt) => { this._setaTexto(txt, 'email_contato') }} value={this.state.currentPedido.cliente.email_contato}  ></TextField>
                     </View>
                     <View style={styles.rowForm}>
-                        <TextField labelText="Telefone direto" placeholder="" col="6" onChange={(txt) => { this._setaTexto(txt, 'telefone_direto_contato') }} value={this.state.currentPedido.cliente.telefone_direto_contato}  ></TextField>
+                        <TextField labelText="Telefone direto *" placeholder="" col="6" onChange={(txt) => { this._setaTexto(txt, 'telefone_direto_contato') }} value={this.state.currentPedido.cliente.telefone_direto_contato}  ></TextField>
                         <TextField labelText="Telefone" placeholder="" col="6" onChange={(txt) => { this._setaTexto(txt, 'telefone_contato') }} value={this.state.currentPedido.cliente.telefone_contato}  ></TextField>
                     </View>
                     <View style={styles.rowForm}>
@@ -481,10 +567,10 @@ export class Cliente extends Component {
                         <TextField labelText="Razão Social" placeholder="" onChange={(txt) => { this._setaTexto(txt, 'razao') }} value={this.state.currentPedido.cliente.razao}  ></TextField>
                     </View>
                     <View style={styles.rowForm}>
-                        <TextField labelText="Nome Fantasia" placeholder="" onChange={(txt) => { this._setaTexto(txt, 'fantasia') }} value={this.state.currentPedido.cliente.fantasia}  ></TextField>
+                        <TextField labelText="Nome Fantasia *" placeholder="" onChange={(txt) => { this._setaTexto(txt, 'fantasia') }} value={this.state.currentPedido.cliente.fantasia}  ></TextField>
                     </View>
                     <View style={styles.rowForm}>
-                    <MaskedField labelText="CNPJ" placeholder="" col="6" type={'cnpj'}  options={{format: '99.999.999/9999-99'}} onChange={(txt) => { this._setaTexto(txt, 'cnpj') }} value={this.state.currentPedido.cliente.cnpj}  ></MaskedField>
+                    <MaskedField labelText="CNPJ *" placeholder="" col="6" type={'cnpj'}  options={{format: '99.999.999/9999-99'}} onChange={(txt) => { this._setaTexto(txt, 'cnpj') }} value={this.state.currentPedido.cliente.cnpj}  ></MaskedField>
                         
                         <TextField labelText="Inscrição estadual" placeholder="" col="6" onChange={(txt) => { this._setaTexto(txt, 'ie') }} value={this.state.currentPedido.cliente.ie}  ></TextField>
                     </View>
@@ -493,18 +579,18 @@ export class Cliente extends Component {
                         <TextField labelText="Website" placeholder="" col="6" onChange={(txt) => { this._setaTexto(txt, 'site') }} value={this.state.currentPedido.cliente.site}  ></TextField>
                     </View>
                     <View style={styles.rowForm}>
-                    <MaskedField labelText="CEP" placeholder="" col="4" type={'zip-code'}  options={{format: '99999-999'}} onChange={(txt) => { this._setaTexto(txt, 'cep') }} value={this.state.currentPedido.cliente.cep}  ></MaskedField>
+                    <MaskedField labelText="CEP *" placeholder="" col="4" type={'zip-code'}  options={{format: '99999-999'}} onChange={(txt) => { this._setaTexto(txt, 'cep') }} value={this.state.currentPedido.cliente.cep}  ></MaskedField>
                         
-                        <TextField labelText="Endereço" placeholder="" col="8" onChange={(txt) => { this._setaTexto(txt, 'endereco') }} value={this.state.currentPedido.cliente.endereco}  ></TextField>
+                        <TextField labelText="Endereço * " placeholder="" col="8" onChange={(txt) => { this._setaTexto(txt, 'endereco') }} value={this.state.currentPedido.cliente.endereco}  ></TextField>
                     </View>
                     <View style={styles.rowForm}>
-                        <TextField labelText="Número" placeholder="" col="4" onChange={(txt) => { this._setaTexto(txt, 'numero') }} value={this.state.currentPedido.cliente.numero}  ></TextField>
+                        <TextField labelText="Número *" placeholder="" col="4" onChange={(txt) => { this._setaTexto(txt, 'numero') }} value={this.state.currentPedido.cliente.numero}  ></TextField>
                         <TextField labelText="Bairro" placeholder="" col="8" onChange={(txt) => { this._setaTexto(txt, 'bairro') }} value={this.state.currentPedido.cliente.bairro}  ></TextField>
                     </View>
                     <View style={styles.rowForm}>
                         <TextField labelText="Cidade" placeholder="" col="8" onChange={(txt) => { this._setaTexto(txt, 'cidade') }} value={this.state.currentPedido.cliente.cidade}  ></TextField>
 
-                        <Select labelText="Estado" col="4" onChange={this._ufChanged} selectedValue={this.state.currentPedido.cliente.uf_id} items={this.state.ufs} ref="uf" ></Select>
+                        <Select labelText="Estado *" col="4" onChange={this._ufChanged} selectedValue={this.state.currentPedido.cliente.uf_id} items={this.state.ufs} ref="uf" ></Select>
                     </View>
                     <View style={styles.rowForm}>
 
@@ -514,7 +600,17 @@ export class Cliente extends Component {
                         <Text style={styles.h2}>Local de entrega e cobrança</Text>
                     </View>
                     <View style={styles.rowForm}>
-                        <Text style={styles.label}>Entrega</Text>
+                    <View style={{flexDirection:'row'}}>
+                        <TouchableOpacity onPress={this.changeMesmoEntrega.bind(this)} >
+                        {!entregaMesmoEndereco && (
+                                    <Image source={require('../images/check.png')} style={{marginRight:5,width: 20, height: 20}}  />
+                                )}
+                                {entregaMesmoEndereco && (
+                                    <Image source={require('../images/check_active.png')} style={{marginRight:5,width: 20, height: 20}}  />
+                                )}
+                        </TouchableOpacity>
+                        <Text style={styles.label}>Endereço de entrega é o mesmo endereço da empresa</Text>
+                    </View>
                     </View>
                     <View style={styles.rowForm}>
                     <MaskedField labelText="CEP" placeholder="" col="4" type={'zip-code'}  options={{format: '99999-999'}} onChange={(txt) => { this._setaTexto(txt, 'entrega_cep') }} value={this.state.currentPedido.cliente.entrega_cep}  ></MaskedField>
@@ -532,7 +628,17 @@ export class Cliente extends Component {
                     </View>
 
                     <View style={styles.rowForm}>
-                        <Text style={styles.label}>Cobrança</Text>
+                    <View style={{flexDirection:'row'}}>
+                        <TouchableOpacity onPress={this.changeMesmoCobranca.bind(this)} >
+                        {!cobrancaMesmoEndereco && (
+                                    <Image source={require('../images/check.png')} style={{marginRight:5,width: 20, height: 20}}  />
+                                )}
+                                {cobrancaMesmoEndereco && (
+                                    <Image source={require('../images/check_active.png')} style={{marginRight:5,width: 20, height: 20}}  />
+                                )}
+                        </TouchableOpacity>
+                        <Text style={styles.label}>Endereço de cobranca é o mesmo endereço da empresa</Text>
+                    </View>
                     </View>
                     <View style={styles.rowForm}>
                         <MaskedField labelText="CEP" placeholder="" col="4" type={'zip-code'}  options={{format: '99999-999'}} onChange={(txt) => { this._setaTexto(txt, 'cobranca_cep') }} value={this.state.currentPedido.cliente.cobranca_cep}  ></MaskedField>                        

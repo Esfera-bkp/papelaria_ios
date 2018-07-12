@@ -40,7 +40,7 @@ export class Listagem extends Component {
         let db = getInstance();
         let query = `SELECT id,json,pedido,date_upd
                     FROM otm_pedidos
-                    WHERE  usuario_id = ${this.state.user.id}`;
+                    WHERE  usuario_id = ${this.state.user.id} order by date_upd desc`;
         db.transaction((tx) => {
             tx.executeSql(query, [], (tx, results) => {
                 let qtde = results.rows.length;
@@ -68,6 +68,7 @@ export class Listagem extends Component {
         }, DbError);
     }
     _novoPedido = ()=>{
+        AsyncStorage.setItem("@OTIMA.currentIdPedido","0");
         Actions.cliente();
     }
     _viewPedido = (el)=>{

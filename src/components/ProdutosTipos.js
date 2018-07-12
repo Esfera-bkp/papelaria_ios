@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 
 import { Actions } from 'react-native-router-flux';
 
-import { getInstance, DbError } from '../classes/DbManager';
+import { getInstance, DbError,salvaOrcamento } from '../classes/DbManager';
 
 import ItemLista from './_itemLista';
 
@@ -102,6 +102,7 @@ export class ProdutosTipos extends Component {
     savePedido = async (pedido) => {
         await this.setState({ currentPedido: pedido });
         AsyncStorage.setItem("@OTIMA.currentPedido", JSON.stringify(pedido));
+        salvaOrcamento(pedido);
     }
 
     render() {

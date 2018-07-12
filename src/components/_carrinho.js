@@ -11,17 +11,26 @@ import ItemCarrinho from './_itemCarrinho';
 
 export default class Carrinho extends Component {
     state = {
-
+        pedido :{},
         modalVisible: false,
+        podeEnviar : false,
+        txtTotal : '00,00',
+        strMinimo : "Você deve comprar no mínimo R$"
+        
     };
+    
 
-    txtTotal = '00,00';
+    // pedido = {};
 
-    pedido = {};
+componentWillReceiveProps(){
+    this._somaTotal(this.props.pedido)
+}
+    componentDidMount() {
+         this._somaTotal(this.props.pedido);
 
-
-    async componentDidMount() {
-
+    }
+     updateCarrinho() {
+        //  this._somaTotal(this.props.pedido);
 
     }
 
@@ -34,47 +43,66 @@ export default class Carrinho extends Component {
     _closeCart = () => {
         this.setState({ modalVisible: false });
     }
-    _somaTotal = () => {
+    _somaTotal = async (pedido) => {
+        console.log(pedido)
         let total = 0;
+        let txtTotal="00,00";
+        if (pedido.produtos && pedido.produtos.length > 0) {
 
-        if (this.pedido.produtos && this.pedido.produtos.length > 0) {
-
-            for (let i = 0; i < this.pedido.produtos.length; i++) {
-                total += this.pedido.produtos[i].item.unitario *this.pedido.produtos[i].qtde ;
+            for (let i = 0; i < pedido.produtos.length; i++) {
+                total += pedido.produtos[i].item.unitario *pedido.produtos[i].qtde ;
             }
-            this.txtTotal = number_format(total, 2, ',', '.');
+            txtTotal = number_format(total, 2, ',', '.');
         }
+
+        console.log('pedido.forma_pagamento.minimo');
+        let minimo = 751;
+        if(pedido.forma_pagamento){
+            minimo = pedido.forma_pagamento.minimo;
+        }
+        let podeEnviar = false;
+        if(total >= minimo){
+            podeEnviar = true;
+        }
+        let strMinimo="Você deve comprar no mínimo R$ "+number_format(minimo, 2, ',', '.');
+
+        
+
+       await this.setState({pedido,podeEnviar,strMinimo,txtTotal});
+
+        
     }
 
     _saveItem = (prd) =>{
         console.log(prd);
-        for (let i = 0; i < this.pedido.produtos.length; i++) {
-            if(prd.cor.id == this.pedido.produtos[i].cor.id){
-                this.pedido.produtos[i] = prd;
+        for (let i = 0; i < this.state.pedido.produtos.length; i++) {
+            if(prd.cor.id == this.state.pedido.produtos[i].cor.id){
+                this.state.pedido.produtos[i] = prd;
             }
         }
-        this.props.savePedido(this.pedido);
+        this.props.savePedido(this.state.pedido);
     }
-    _removeItem = (prd) =>{
+    _removeItem = async (prd) =>{
         console.log(prd);
-        for (let i = 0; i < this.pedido.produtos.length; i++) {
-            if(prd.cor.id == this.pedido.produtos[i].cor.id){
-                this.pedido.produtos.splice(i,1);
+        for (let i = 0; i < this.state.pedido.produtos.length; i++) {
+            if(prd.cor.id == this.state.pedido.produtos[i].cor.id){
+                this.state.pedido.produtos.splice(i,1);
             }
         }
-        this.props.savePedido(this.pedido);
+        await this.props.savePedido(this.state.pedido);
+        this._somaTotal(this.state.pedido);
     }
     _finalizar = () => {
-        this.setState({ modalVisible: false });
-        if(this.pedido.produtos && this.pedido.produtos.length > 0){
+        if(this.state.podeEnviar){
+            this.setState({ modalVisible: false });
             Actions.pedido();
         }else{
             Alert.alert(
                 'Atenção',
-                'Carrinho vazio!',
+                this.state.strMinimo,
                 [
                   
-                  {text: 'Ok', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                  {text: 'Ok', onPress: () => {console.log('Cancel Pressed');this.setState({ modalVisible: false });}, style: 'cancel'},
                   
                 ],
                 { cancelable: true }
@@ -82,8 +110,11 @@ export default class Carrinho extends Component {
         }
     }
     render() {
-        this.pedido = this.props.pedido;
-        this._somaTotal();
+        // this._somaTotal(this.props.pedido);
+
+        const {pedido,podeEnviar,strMinimo,txtTotal} = this.state;
+        // this.state.pedido = this.props.pedido;
+        // this._somaTotal();
 
 
 
@@ -91,10 +122,10 @@ export default class Carrinho extends Component {
         return (
             <View style={styles.container} >
 
-                <TouchableOpacity style={[styles.btnCart, { backgroundColor: (this.pedido.produtos && this.pedido.produtos.length > 0) ? '#39B54A' : '#C5D0DE' }]} onPress={this._openCart} >
+                <TouchableOpacity style={[styles.btnCart, { backgroundColor: (pedido.produtos && pedido.produtos.length > 0) ? '#39B54A' : '#C5D0DE' }]} onPress={this._openCart} >
                     <Image source={require('../images/icons/cart.png')} style={{ width: 14, height: 14 }} />
-                    <View style={[styles.counter, { opacity: (this.pedido.produtos && this.pedido.produtos.length > 0) ? 1 : 0 }]} >
-                        <Text style={styles.counterTxt} >{(this.pedido.produtos && this.pedido.produtos.length > 0) ? this.pedido.produtos.length : '0'}</Text>
+                    <View style={[styles.counter, { opacity: (pedido.produtos && pedido.produtos.length > 0) ? 1 : 0 }]} >
+                        <Text style={styles.counterTxt} >{(pedido.produtos && pedido.produtos.length > 0) ? pedido.produtos.length : '0'}</Text>
                     </View>
                 </TouchableOpacity>
                 <Modal animationType="fade" transparent={true} visible={this.state.modalVisible} >
@@ -112,19 +143,24 @@ export default class Carrinho extends Component {
                             </View>
                             <ScrollView contentContainerStyle={styles.cartList} >
                                 {
-                                    (this.pedido.produtos && this.pedido.produtos.length > 0) ?
+                                    (pedido.produtos && pedido.produtos.length > 0) ?
 
-                                        this.pedido.produtos.map((el, i) => {
+                                        pedido.produtos.map((el, i) => {
                                             return (
 
-                                                <ItemCarrinho saveItem={this._saveItem.bind(this)}  removeItem={this._removeItem.bind(this)}  key={i} obj={el} pedido={this.pedido} />
+                                                <ItemCarrinho saveItem={this._saveItem.bind(this)}  removeItem={this._removeItem.bind(this)}  key={i} obj={el} pedido={pedido} />
                                                 
                                             );
                                         })
                                         :
-                                        <Text style={{padding:20}}>Nenhum item</Text>
-
-                                }
+                                        <Text style={{padding:20}}></Text>
+                                        
+                                    }
+                                    {!podeEnviar && 
+                                    <View style={styles.boxAlert}>
+                                        <Text style={styles.boxAlertText}>{strMinimo}</Text>
+                                    </View>
+                                    }
 
 
 
@@ -132,7 +168,7 @@ export default class Carrinho extends Component {
                             </ScrollView>
                             <View style={styles.cartFooter}>
                                 <Text style={styles.label}>Total do pedido</Text>
-                                <Text style={styles.total}>R$ {this.txtTotal}</Text>
+                                <Text style={styles.total}>R$ {txtTotal}</Text>
 
                                 <TouchableOpacity style={[styles.btnFinalizar]} onPress={this._finalizar} >
                                     <Text style={styles.txtBtnFinalizar}>Finalizar Pedido</Text>
@@ -283,6 +319,20 @@ const styles = StyleSheet.create({
         fontSize:18,
         fontWeight:'bold'
     },
+    boxAlert:{
+        backgroundColor:'#f8d7da',
+        borderRadius:4,
+        borderColor:'#f5c6cb',
+        borderWidth:1,
+        padding:20,
+        margin:20,
+        alignItems:'center',
+        justifyContent:'center',
+    }
+    ,boxAlertText:{
+        color:'#721c24',
+        fontSize:18,
+    }
    
 
 

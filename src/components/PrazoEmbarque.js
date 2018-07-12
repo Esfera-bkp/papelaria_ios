@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 
 import { Actions } from 'react-native-router-flux';
 
-import { getInstance, DbError } from '../classes/DbManager';
+import { getInstance, DbError,salvaOrcamento } from '../classes/DbManager';
 
 
 
@@ -99,6 +99,7 @@ export class PrazoEmbarque extends Component {
     }
     _submit = () => {
         AsyncStorage.setItem("@OTIMA.currentPedido",JSON.stringify(this.state.currentPedido));
+        salvaOrcamento(this.state.currentPedido);
         Actions.produtos();
     }
 

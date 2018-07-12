@@ -1,5 +1,5 @@
 
-
+import { AsyncStorage } from 'react-native';
 import create from './otima_create.json';
 import insert from './insert_controle.json';
 //import RNFetchBlob from 'react-native-fetch-blob'
@@ -116,6 +116,51 @@ export const  getInstance=()=>{
         }else{
             return false;
         }
+    }
+
+
+    export const salvaOrcamento = async (pedido) => {
+        
+
+        let data = new Date();
+        const mes = data.getMonth() + 1 < 10 ? "0" + (data.getMonth() + 1) : data.getMonth() + 1;
+        const dia = data.getDate() < 10 ? "0" + (data.getDate()) : data.getDate();
+        const dataHora = data.getFullYear() + "-" + mes + "-" + dia + " " + data.getHours() + ":" + data.getMinutes() + ":" + data.getSeconds();
+
+        let query = "";
+
+        let jsonPedido = JSON.stringify(pedido);
+        jsonPedido = jsonPedido.split("'").join("''");
+        const idPedido = await AsyncStorage.getItem("@OTIMA.currentIdPedido");
+        
+        const usuarioJson = await AsyncStorage.getItem("@OTIMA.user");
+        const user = JSON.parse(usuarioJson);
+        
+        console.log('idPedido');
+        console.log(idPedido);
+        if (idPedido && idPedido != 0) {
+            query = "UPDATE otm_pedidos set json = '"+jsonPedido+"', date_upd='"+dataHora+"' where id = "+idPedido+";";
+        } else {
+            query = "INSERT INTO otm_pedidos  (json, usuario_id,date_upd)  VALUES ('"+jsonPedido+"','"+user.id+"','"+ dataHora+"') ;";
+        }
+
+
+        let db = getInstance();
+        console.log(query);
+       await db.transaction(async (tx) => {
+           await tx.executeSql(query, [], async (tx, res) => {
+
+                console.log("insertId: " + res.insertId + " -- probably 1");
+                console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+                if (res.insertId) {
+                    await AsyncStorage.setItem("@OTIMA.currentIdPedido",res.insertId.toString());
+                    
+                }
+
+
+
+            }, DbError);
+        }, DbError);
     }
 
 

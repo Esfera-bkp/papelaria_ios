@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 
 import { Actions } from 'react-native-router-flux';
 
-import { getInstance, DbError } from '../classes/DbManager';
+import { getInstance, DbError,salvaOrcamento } from '../classes/DbManager';
 
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 
@@ -120,7 +120,9 @@ export class Pagamento extends Component {
         }else{
 
             AsyncStorage.setItem("@OTIMA.currentPedido",JSON.stringify(this.state.currentPedido));
-            console.log(this.state.currentPedido);
+            
+            salvaOrcamento(this.state.currentPedido);
+            
             Actions.prazoembarque();
         }
     }
