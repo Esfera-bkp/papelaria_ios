@@ -112,7 +112,7 @@ export class Pedido extends Component {
             let parcelas = [];
 
             this.state.currentPedido.produtos.map((el, i) => {
-
+                const unitVal =  parseFloat(el.item.unitario).toFixed(1);
                 const objPrd = {
                     referencia: el.item.referencia,
                     barras: el.cor.barras,
@@ -121,9 +121,9 @@ export class Pedido extends Component {
                     descricao: el.item.titulo,
                     ipiper: el.item.ipi,
                     qtde: el.qtde,
-                    unitario: number_format(el.item.unitario, 2, ',', '.'),
-                    total: number_format(parseFloat(el.item.unitario * el.qtde).toFixed(2), 2, ',', '.'),
-                    ipi: number_format(parseFloat(el.item.unitario * (el.item.ipi / 100)).toFixed(2), 2, ',', '.'),
+                    unitario: number_format(unitVal, 2, ',', '.'),
+                    total: number_format(parseFloat(unitVal * el.qtde).toFixed(2), 2, ',', '.'),
+                    ipi: number_format(parseFloat(unitVal * (el.item.ipi / 100)).toFixed(2), 2, ',', '.'),
                     st: number_format(0, 2, ',', '.'),
                 };
                 produtosCalculados.push(objPrd);
@@ -245,22 +245,26 @@ export class Pedido extends Component {
             let totalM = 0;
             for (let x = 0; x < this.state.currentPedido.produtos.length; x++) {
                 const prd = this.state.currentPedido.produtos[x];
-                let totalUnitario = (prd.item.unitario * prd.qtde);
+                let totalUnitario = parseFloat(prd.item.unitario * prd.qtde);
                 if(this.state.descontoComercial>0){
-                    totalUnitario = totalUnitario - (totalUnitario * (this.state.descontoComercial/100));
+                    totalUnitario = parseFloat(totalUnitario - (totalUnitario * (this.state.descontoComercial/100)));
                 }
-                totalM += totalUnitario;
+                // totalUnitario = totalUnitario.toFixed(1);
+                // console.log(totalUnitario);
+                totalM = parseFloat(totalM)+  parseFloat(totalUnitario);
 
                 if (prd.item.ipi > 0) {
                     const total = prd.item.unitario * prd.qtde;
                     const ipi = total * (prd.item.ipi / 100);
-                    this.totalIpi = ipi;
+                    this.totalIpi += ipi;
                 }
             }
 
-            this.totalMercadorias = totalM;
-            this.totalParcial = this.totalMercadorias + this.totalIpi;
-            this.totalGeral = this.totalParcial;
+            this.totalMercadorias = parseFloat(totalM).toFixed(1);
+            console.log('totalMercadorias');
+            console.log(this.totalMercadorias);
+            this.totalParcial = parseFloat(this.totalMercadorias + this.totalIpi);
+            this.totalGeral = parseFloat(this.totalParcial);
 
 
             let db = getInstance();
@@ -309,11 +313,12 @@ export class Pedido extends Component {
 
 
     renderRow(el, i) {
-        const txtUnitario = number_format(el.item.unitario, 2, ',', '.');
-        const txtTotal = number_format(el.item.unitario * el.qtde, 2, ',', '.');
+        const unitario = parseFloat(el.item.unitario).toFixed(1);
+        const txtUnitario = number_format(unitario, 2, ',', '.');
+        const txtTotal = number_format(unitario * el.qtde, 2, ',', '.');
         let txtIpi;
         if (el.item.ipi > 0) {
-            const total = el.item.unitario * el.qtde;
+            const total = unitario * el.qtde;
             const ipi = total * (el.item.ipi / 100);
             txtIpi = number_format(ipi, 2, ',', '.');
         } else {

@@ -314,6 +314,7 @@ export class Cliente extends Component {
             curPed.cliente.entrega_cep          = curPed.cliente.cep;
             curPed.cliente.entrega_numero       = curPed.cliente.numero;
             curPed.cliente.entrega_estado_nome  = curPed.cliente.estado_nome;
+            this.refs.entrega_uf.updateLabel(curPed.cliente.estado_nome); 
         }
         
         if(this.state.cobrancaMesmoEndereco){
@@ -325,6 +326,7 @@ export class Cliente extends Component {
             curPed.cliente.cobranca_cep          = curPed.cliente.cep;
             curPed.cliente.cobranca_numero       = curPed.cliente.numero;
             curPed.cliente.cobranca_estado_nome  = curPed.cliente.estado_nome;
+            this.refs.cobranca_uf.updateLabel(curPed.cliente.estado_nome);
         }
         if(alterou){
             this.setState({ currentPedido: curPed });
@@ -405,7 +407,7 @@ export class Cliente extends Component {
                 curPed.cliente.endereco = endRes.logradouro;
                 curPed.cliente.bairro = endRes.bairro;
                 curPed.cliente.cidade = endRes.cidade;
-                curPed.cliente.uf_id = this._getUfName(endRes.uf);
+                curPed.cliente.uf_id = this._getUfId(endRes.uf);
                 curPed.cliente.estado_nome = endRes.uf;
                 this.refs.uf.updateLabel(endRes.uf);
                 
@@ -414,7 +416,7 @@ export class Cliente extends Component {
                 curPed.cliente.entrega_endereco = endRes.logradouro;
                 curPed.cliente.entrega_bairro = endRes.bairro;
                 curPed.cliente.entrega_cidade = endRes.cidade;
-                curPed.cliente.entrega_uf_id = this._getUfName(endRes.uf);
+                curPed.cliente.entrega_uf_id = this._getUfId(endRes.uf);
                 curPed.cliente.entrega_estado_nome = endRes.uf;
                 this.refs.entrega_uf.updateLabel(endRes.uf);
                 
@@ -423,7 +425,7 @@ export class Cliente extends Component {
                 curPed.cliente.cobranca_endereco = endRes.logradouro;
                 curPed.cliente.cobranca_bairro = endRes.bairro;
                 curPed.cliente.cobranca_cidade = endRes.cidade;
-                curPed.cliente.cobranca_uf_id = this._getUfName(endRes.uf);
+                curPed.cliente.cobranca_uf_id = this._getUfId(endRes.uf);
                 curPed.cliente.cobranca_estado_nome = endRes.uf;
                 this.refs.cobranca_uf.updateLabel(endRes.uf);
                 
@@ -594,7 +596,7 @@ export class Cliente extends Component {
                     </View>
                     <View style={styles.rowForm}>
 
-                        <Select labelText="Regime fiscal" col="12" onChange={this._regimeFiscalChanged} items={this.state.tributos} ref="tributos" ></Select>
+                        <Select labelText="Regime fiscal *" col="12" onChange={this._regimeFiscalChanged} items={this.state.tributos} ref="tributos" ></Select>
                     </View>
                     <View style={styles.rowForm}>
                         <Text style={styles.h2}>Local de entrega e cobrança</Text>
