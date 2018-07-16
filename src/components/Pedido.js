@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 
 import { Actions } from 'react-native-router-flux';
 
-import { getInstance, DbError } from '../classes/DbManager';
+import { getInstance, DbError,salvaOrcamento } from '../classes/DbManager';
 
 import { number_format } from '../classes/Funcoes';
 
@@ -70,43 +70,7 @@ export class Pedido extends Component {
 
 
     }
-    salvaOrcamento = () => {
-        AsyncStorage.setItem("@OTIMA.currentPedido", JSON.stringify(this.state.currentPedido));
-
-        let data = new Date();
-        const mes = data.getMonth() + 1 < 10 ? "0" + (data.getMonth() + 1) : data.getMonth() + 1;
-        const dia = data.getDate() < 10 ? "0" + (data.getDate()) : data.getDate();
-        const dataHora = data.getFullYear() + "-" + mes + "-" + dia + " " + data.getHours() + ":" + data.getMinutes() + ":" + data.getSeconds();
-
-        let query = "";
-
-        let jsonPedido = JSON.stringify(this.state.currentPedido);
-        jsonPedido = jsonPedido.split("'").join("''");
-        // console.log(jsonPedido);
-        
-        if (this.state.idPedido != 0) {
-            query = "UPDATE otm_pedidos set json = '"+jsonPedido+"', date_upd='"+dataHora+"' where id = "+this.state.idPedido+";";
-        } else {
-            query = "INSERT INTO otm_pedidos  (json, usuario_id,date_upd)  VALUES ('"+jsonPedido+"','"+this.state.idUsuario+"','"+ dataHora+"') ;";
-        }
-
-
-        let db = getInstance();
-        console.log(query);
-        db.transaction((tx) => {
-            tx.executeSql(query, [], (tx, res) => {
-
-                console.log("insertId: " + res.insertId + " -- probably 1");
-                console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
-                if (res.insertId) {
-                    this.setState({ idPedido: res.insertId });
-                }
-
-
-
-            }, DbError);
-        }, DbError);
-    }
+   
     _preparaObjeto = async () => {
         let produtosCalculados = [];
             let parcelas = [];
@@ -172,7 +136,10 @@ export class Pedido extends Component {
     salvaOrcamentoPressed = async () => {
         // setTimeout(() => { Actions.listagem(); }, 300);
         if (!this.state.isLoadingOrcamento) {
-            await this.salvaOrcamento();
+            
+            await AsyncStorage.setItem("@OTIMA.currentPedido", JSON.stringify(this.state.currentPedido));
+            await salvaOrcamento(this.state.currentPedido);
+            
             this.setState({ isLoadingOrcamento: true });
 
             const obj = await this._preparaObjeto();
@@ -201,7 +168,9 @@ export class Pedido extends Component {
 
 
             this.setState({ isLoading: true });
-            await this.salvaOrcamento();
+            
+            await AsyncStorage.setItem("@OTIMA.currentPedido", JSON.stringify(this.state.currentPedido));
+            await salvaOrcamento(this.state.currentPedido);
 
             const obj = await this._preparaObjeto();
 

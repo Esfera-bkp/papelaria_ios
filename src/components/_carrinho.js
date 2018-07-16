@@ -22,9 +22,9 @@ export default class Carrinho extends Component {
 
     // pedido = {};
 
-componentWillReceiveProps(){
-    this._somaTotal(this.props.pedido)
-}
+    componentWillReceiveProps(){
+        this._somaTotal(this.props.pedido)
+    }
     componentDidMount() {
          this._somaTotal(this.props.pedido);
 

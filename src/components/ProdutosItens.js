@@ -198,7 +198,7 @@ export class ProdutosItens extends Component {
     
     savePedido = async (pedido) =>{
         await this.setState({ currentPedido: pedido  });
-        AsyncStorage.setItem("@OTIMA.currentPedido",JSON.stringify(pedido)); 
+        await AsyncStorage.setItem("@OTIMA.currentPedido",JSON.stringify(pedido)); 
         salvaOrcamento(pedido);
     }
     render() {
