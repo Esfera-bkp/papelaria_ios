@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { View, StyleSheet, Text, Image } from 'react-native';
+import { View, StyleSheet, Text, Image,Alert,Linking } from 'react-native';
 
 import { connect } from 'react-redux';
 
@@ -19,9 +19,45 @@ export  class Inicial extends Component {
         ],
       };
       
-
-      componentDidMount = () => {
+      updateApk = async () => {
+        
+        console.log('updateApk');
+        const url = 'itms-services://?action=download-manifest&url=https://londigital.com.br/manifests/otima_papelariav2/manifest.plist';
+        Linking.canOpenURL(url).then(supported => {
+            if (!supported) {
+                console.log('Can\'t handle url: ' + url);
+            } else {
+                console.log(url);
+              Linking.openURL(url);
+            }
+          }).catch(err => console.error('An error occurred', err));
+        
+      }
+      componentDidMount = async() => {
         KeepAwake.activate();
+
+        // let url = `${this.props.UrlServer}app/v2/versao.json`;
+        // console.log(url); 
+        // const pingCall = await fetch(url);
+        // const txt = await pingCall.json();
+        // if(txt.versao != this.props.Versao){
+        //     console.log(this.props.Versao); 
+        //     console.log(txt.versao); 
+
+        //     Alert.alert(
+        //         'Atenção',
+        //         "Versão desatualizada, aperte ok para atualizar",
+        //         [
+                  
+        //           {text: 'Ok', onPress: this.updateApk.bind(this), style: 'cancel'},
+                  
+        //         ],
+        //         { cancelable: true }
+        //       )
+
+        // }
+
+        
       }
       _showLogin = async (newRepoText) => {
           console.log('_showLogin');

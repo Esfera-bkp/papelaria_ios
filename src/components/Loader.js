@@ -89,7 +89,7 @@ export  class Loader extends Component {
                 const pingCall = await fetch(url);
                 const txt = await pingCall.json();
                 
-                console.log(txt.queries.length); 
+                console.log(txt.queries.length);   
                 if(txt.queries.length>0){
                     this.setState({txtInfo:"Processando 0%"}); 
 
@@ -298,6 +298,7 @@ export  class Loader extends Component {
 const mapStateToProps = state => (
  {
     UrlServer: state.GlobalReducer.UrlServer,
+    Versao: state.GlobalReducer.Versao,
 }       
 ); 
  

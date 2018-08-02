@@ -100,6 +100,8 @@ export class Cliente extends Component {
                         if (isGestor) {
                             repArray.push(item);
                         } else {
+                            // console.log(this.usuario.representante_id + "=="+ item.id);
+                            
                             if (this.usuario.representante_id == item.id) {
                                 repArray.push(item);
                                 if(!this.state.currentPedido.representante.id){
@@ -113,7 +115,7 @@ export class Cliente extends Component {
                     this.setState({ representantes: repArray });
 
                 } else {
-                    alert('Email incorreto!');
+                    // alert('Email incorreto!');
                 }
 
 
@@ -195,7 +197,7 @@ export class Cliente extends Component {
 
 
                 } else {
-                    alert('Email incorreto!');
+                    //alert('Email incorreto!');
                 }
 
 
