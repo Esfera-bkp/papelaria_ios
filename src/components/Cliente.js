@@ -115,7 +115,18 @@ export class Cliente extends Component {
                     this.setState({ representantes: repArray });
 
                 } else {
-                    // alert('Email incorreto!');
+
+                    Alert.alert(
+                        'Atenção',
+                        'Sem representante vinculado a este usuário!',
+                        [
+                          
+                          {text: 'Ok', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                          
+                        ],
+                        { cancelable: true }
+                      )
+                    
                 }
 
 
@@ -141,7 +152,7 @@ export class Cliente extends Component {
                     }
                     this.setState({ ufs: repArray });
                 } else {
-                    alert('Erri!');
+                    alert('Erro!');
                 }
 
 
@@ -197,7 +208,17 @@ export class Cliente extends Component {
 
 
                 } else {
-                    //alert('Email incorreto!');
+                    Alert.alert(
+                        'Atenção',
+                        'Nenhum cliente cadastrado para este representante',
+                        [
+                          
+                          {text: 'Ok', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                          
+                        ],
+                        { cancelable: true }
+                      )
+                    
                 }
 
 

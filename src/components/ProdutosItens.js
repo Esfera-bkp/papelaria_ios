@@ -84,7 +84,7 @@ export class ProdutosItens extends Component {
             AND d.id = ${this.state.currentPedido.cliente.uf_id} 
             
         ORDER BY a.order_id, a.titulo,a.id`;
-        console.log(query);
+        // console.log(query);
         await db.transaction(async (tx) => {
             await tx.executeSql(query, [], async (tx_, results) => {
                 let qtde = results.rows.length;
@@ -111,29 +111,44 @@ export class ProdutosItens extends Component {
                         // }
                         item.unitario = unitario;
                         let query_cores = `SELECT id,formato_id,cor,titulo,barras,image,metrics FROM otm_cores WHERE formato_id = ${item.id} and online = 1 order by titulo`;
+                        console.log(query_cores);
+                        let colocaItem=true;
                         await tx.executeSql(query_cores, [], async (tx__, results_cores) => {
                             let qtde_cores = results_cores.rows.length;
                             if (qtde_cores > 0) {
                                 let repCores = [];
                                 for (let y = 0; y < qtde_cores; y++) {
                                     let itemCor = results_cores.rows.item(y);
-                
-                
-                                    repCores.push(itemCor);
+                                    if(itemCor.image != ''){ 
+                                        console.log(itemCor.image);
+                                        repCores.push(itemCor);
+                                    }
                 
                                 }
                                 item.cores = repCores;
                                 
                                 
                             } else {
-                                alert('Nenhum item');
+                                colocaItem = false;
+                                // Alert.alert(
+                                //     'Atenção',
+                                //     'Nenhuma cor cadastrada no item! '+item.titulo+' id:'+item.id,
+                                //     [
+                                      
+                                //       {text: 'Ok', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                                      
+                                //     ],
+                                //     { cancelable: true }
+                                //   )
+                                
                             }
                             
                             
                             
                         }, DbError);
-                        
-                        await repArray.push(item);
+                        if(colocaItem){
+                            await repArray.push(item);
+                        }
                     }
                     
 
@@ -144,7 +159,17 @@ export class ProdutosItens extends Component {
 
                     
                 } else {
-                    alert('Nenhum item!');
+                    Alert.alert(
+                        'Atenção',
+                        'Nenhum item cadastrado no produto! '+this.state.tipoProduto.id,
+                        [
+                          
+                          {text: 'Ok', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                          
+                        ],
+                        { cancelable: true }
+                      )
+                    
                     Actions.pop();
                 }
 
