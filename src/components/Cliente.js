@@ -458,7 +458,7 @@ export class Cliente extends Component {
     }
     _submit = async () => {
 
-        if( this._validaCampos()){
+        if( this._validaCampos()){ 
             
             AsyncStorage.setItem("@OTIMA.currentPedido",JSON.stringify(this.state.currentPedido));
             salvaOrcamento(this.state.currentPedido);

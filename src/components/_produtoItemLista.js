@@ -37,7 +37,7 @@ export class ProdutoItemLista extends Component {
             barras: (this.props.item.cores[0] ? this.props.item.cores[0].barras : ''),
             qtde: this.props.item.embalagem,
             step: this.props.item.embalagem,
-            colorSelected: (this.props.item.cores[0] ? this.props.item.cores[0].barras : null),
+            colorSelected: (this.props.item.cores[0] ? this.props.item.cores[0] : {}),
             // imagePath: this.props.urlServidor + "uploads/cores/" + this.props.item.cores[0].image,
             imagePath:  (this.props.item.cores[0] ? dirs+"/cores/" + this.props.item.cores[0].image : 'https://dummyimage.com/300/eee/ccc.png&text='+this.props.item.titulo),
             txtPreco: `${number_format(this.props.item.unitario, 2, ',', '.')} +${percIPI} IPI`,

@@ -232,7 +232,11 @@ export class Pedido extends Component {
             this.totalMercadorias = parseFloat(totalM).toFixed(1);
             console.log('totalMercadorias');
             console.log(this.totalMercadorias);
-            this.totalParcial = parseFloat(this.totalMercadorias + this.totalIpi);
+            console.log('totalIpi');
+            console.log(this.totalIpi);
+            this.totalParcial = parseFloat(this.totalMercadorias) + parseFloat(this.totalIpi);
+            console.log('totalParcial');
+            console.log(this.totalParcial);
             this.totalGeral = parseFloat(this.totalParcial);
 
 

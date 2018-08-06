@@ -30,10 +30,10 @@ export default class Carrinho extends Component {
 
     }
      updateCarrinho() {
-        //  this._somaTotal(this.props.pedido);
+        this._somaTotal(this.props.pedido);
 
     }
-
+    
 
 
 

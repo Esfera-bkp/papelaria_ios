@@ -13,7 +13,7 @@ import ModalCatalogo from './ModalCatalogo';
 export class Listagem extends Component {
     state = {
         orderby:"data",
-        canRemove:false,
+        canEdit:false,
         consultaVisible:false,
         modalCatalogoVisible:false,
         user:{},
@@ -90,7 +90,36 @@ export class Listagem extends Component {
                               WHERE  id = ${el.id}`;
                   db.transaction((tx) => {
                       tx.executeSql(query, [], (tx, results) => {
-                        this.setState({canRemove:false});
+                        this.setState({canEdit:false});
+                          this._loadPedidos();
+                      }, DbError);
+                  }, DbError);
+                
+                }},
+            ],
+            { cancelable: true }
+          )
+        
+    }
+    _duplicatePedido = async (el)=>{
+        Alert.alert(
+            'Atenção',
+            'Deseja duplicar este pedido?', 
+            [
+              
+              {text: 'Não', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+              {text: 'Sim', onPress: () => {
+                  let db = getInstance();
+                  let data = new Date();
+                    const mes = data.getMonth() + 1 < 10 ? "0" + (data.getMonth() + 1) : data.getMonth() + 1;
+                    const dia = data.getDate() < 10 ? "0" + (data.getDate()) : data.getDate();
+                    const dataHora = data.getFullYear() + "-" + mes + "-" + dia + " " + data.getHours() + ":" + data.getMinutes() + ":" + data.getSeconds();
+                    
+                  let query = "INSERT INTO otm_pedidos (json, usuario_id,date_upd)  SELECT json, usuario_id, '"+ dataHora+"' FROM otm_pedidos WHERE  id = "+el.id+" ;";
+                  db.transaction((tx) => {
+                      tx.executeSql(query, [], (tx, results) => {
+
+                        this.setState({canEdit:false});
                           this._loadPedidos();
                       }, DbError);
                   }, DbError);
@@ -105,9 +134,15 @@ export class Listagem extends Component {
         const pedido = JSON.parse(el.json);
         return(
             <TouchableOpacity style={styles.pedidosRow} key={i} onPress={()=>{this._viewPedido(el)}} >
-            {this.state.canRemove && (
+            {this.state.canEdit && (
                 <TouchableOpacity style={[styles.btnRemove]} onPress={()=>{this._removePedido(el)}}  >
                 <Image source={require('../images/icons/remove.png')} style={{ width: 8, height: 8 }} />
+            </TouchableOpacity>
+                                  
+                                )}
+            {this.state.canEdit && (
+                <TouchableOpacity style={[styles.btnRemove,styles.blueButton]} onPress={()=>{this._duplicatePedido(el)}}  >
+                <Image source={require('../images/icons/duplicate.png')} style={{ width: 16, height: 16 }} />
             </TouchableOpacity>
                                   
                                 )}
@@ -131,25 +166,25 @@ export class Listagem extends Component {
         )
     }
     toggleRemove = () =>{
-        if(this.state.canRemove){
-            this.setState({canRemove:false});
+        if(this.state.canEdit){
+            this.setState({canEdit:false});
         }else{
-            this.setState({canRemove:true});
+            this.setState({canEdit:true});
         }
     }
     render() {
-        const { canRemove } = this.state;
+        const { canEdit } = this.state;
         return (
             <View style={styles.container} >
                 <View style={styles.header} >
                     <View style={styles.buttomContainer} >
                     <TouchableOpacity style={styles.btnCancelar} onPress={this.toggleRemove.bind(this) }>
-                            {!canRemove && (
+                            {!canEdit && (
                                     
-                                    <Text style={[styles.textRed, styles.textBold]}>Excluir</Text>
+                                    <Text style={[styles.textRed, styles.textBold]}>Editar</Text>
                                 )}
 
-                                {canRemove && (
+                                {canEdit && (
                                 <Text style={[styles.textRed, styles.textBold]}>Fechar</Text>
                                   
                                 )}
@@ -218,6 +253,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginRight:14,
     },
+   
     textRed: {
         color: '#ED1C24',
     },

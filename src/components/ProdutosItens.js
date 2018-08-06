@@ -201,11 +201,12 @@ export class ProdutosItens extends Component {
         }
         if(podeSalvar){
 
-            curPed.produtos.push(item);
+            await curPed.produtos.push(item);
+            await this.savePedido(curPed);
+            // await this.setState({ currentPedido: curPed  });
             
-            await this.setState({ currentPedido: curPed  });
-            
-            AsyncStorage.setItem("@OTIMA.currentPedido",JSON.stringify(curPed));
+            // await AsyncStorage.setItem("@OTIMA.currentPedido",JSON.stringify(curPed));
+            // salvaOrcamento(curPed);
         }else{
             Alert.alert(
                 'Atenção',
@@ -224,7 +225,8 @@ export class ProdutosItens extends Component {
     savePedido = async (pedido) =>{
         await this.setState({ currentPedido: pedido  });
         await AsyncStorage.setItem("@OTIMA.currentPedido",JSON.stringify(pedido)); 
-        salvaOrcamento(pedido);
+        await salvaOrcamento(pedido);
+        this.refs.carrinhoBtn.updateCarrinho();
     }
     render() {
 
@@ -270,7 +272,7 @@ export class ProdutosItens extends Component {
                     </View>
                     <Pesquisa  />
                     {!this.state.somenteConsulta && (
-                        <Carrinho pedido={this.state.currentPedido} savePedido={this.savePedido.bind(this)} />
+                        <Carrinho ref="carrinhoBtn" pedido={this.state.currentPedido} savePedido={this.savePedido.bind(this)} />
                     )}
                 </View>
 
