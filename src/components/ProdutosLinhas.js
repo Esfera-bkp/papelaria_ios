@@ -27,19 +27,28 @@ export class ProdutosLinhas extends Component {
     };
 
 
-
-
+    async componentWillReceiveProps(){
+        console.log("########");
+              
+                let value = await AsyncStorage.getItem("@OTIMA.currentPedido");      
+                let curPed = JSON.parse(value);
+                await this.setState({ currentPedido: curPed });
+                this.refs.carrinhoBtn.updateCarrinho();
+       
+    }
+    
     async componentDidMount() {
 
         AsyncStorage.getItem("@OTIMA.currentPedido").then(async (value) => {
             let curPed = JSON.parse(value);
             await this.setState({ currentPedido: curPed });
             await this.getLinhas();
-
+            this.refs.carrinhoBtn.updateCarrinho();
             AsyncStorage.getItem("@OTIMA.somenteConsulta").then(async (value) => {
                 if (value && value == 1) {
                     await this.setState({ somenteConsulta: true });
                 }
+                
             }).done();
         }).done();
 
@@ -140,7 +149,7 @@ export class ProdutosLinhas extends Component {
                     </View>
                     <Pesquisa  />
                     {!this.state.somenteConsulta && (
-                        <Carrinho pedido={this.state.currentPedido} savePedido={this.savePedido.bind(this)} />
+                        <Carrinho ref="carrinhoBtn" pedido={this.state.currentPedido} savePedido={this.savePedido.bind(this)} />
                     )}
                 </View>
 

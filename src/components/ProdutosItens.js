@@ -30,14 +30,14 @@ export class ProdutosItens extends Component {
 
 
 
-
+    
     async componentDidMount() {
 
         await AsyncStorage.getItem("@OTIMA.currentPedido").then(async (value) => {
             let curPed = JSON.parse(value);
             console.log(curPed);
             await this.setState({ currentPedido: curPed });
-
+            this.refs.carrinhoBtn.updateCarrinho();
             AsyncStorage.getItem("@OTIMA.somenteConsulta").then(async (value) => {
                 if (value && value == 1) {
                     await this.setState({ somenteConsulta: true });
@@ -283,11 +283,11 @@ export class ProdutosItens extends Component {
                                 <Text style={styles.breadcrumProdutosText}>Linhas</Text>
                             </TouchableOpacity>
                             <Text style={[styles.h1, styles.textBlue]}> \ </Text>
-                            <TouchableOpacity style={styles.breadcrumProdutosItem} onPress={() => { Actions.pop() }}>
+                            <TouchableOpacity style={styles.breadcrumProdutosItem} onPress={() => { Actions.pop({refresh: {refresh:Math.random()}}) }}>
                                 <Text style={styles.breadcrumProdutosText}>Produtos Linha {this.state.linha.titulo}</Text>
                             </TouchableOpacity>
                             <Text style={styles.h1}> \ {this.state.tipoProduto.titulo}</Text>
-                        </View>
+                        </View> 
                         <TouchableOpacity style={styles.btnCancelar} onPress={() => { Actions.listagem() }}>
                             <Text style={[styles.textRed, styles.textBold]}>Cancelar Pedido</Text>
                         </TouchableOpacity>

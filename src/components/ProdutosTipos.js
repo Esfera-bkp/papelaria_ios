@@ -27,15 +27,24 @@ export class ProdutosTipos extends Component {
 
     };
 
+    
 
-
+    async componentWillReceiveProps(){
+        console.log("########");
+              
+                let value = await AsyncStorage.getItem("@OTIMA.currentPedido");      
+                let curPed = JSON.parse(value);
+                await this.setState({ currentPedido: curPed });
+                this.refs.carrinhoBtn.updateCarrinho();
+       
+    }
 
     async componentDidMount() {
         await AsyncStorage.getItem("@OTIMA.currentPedido").then(async (value) => {
             let curPed = JSON.parse(value);
             console.log(curPed);
             await this.setState({ currentPedido: curPed });
-
+            this.refs.carrinhoBtn.updateCarrinho();
             AsyncStorage.getItem("@OTIMA.linha").then(async (value) => {
                 let linha = JSON.parse(value);
                 await this.setState({ linha });
@@ -149,14 +158,14 @@ export class ProdutosTipos extends Component {
                     </View>
                     <Pesquisa  />
                     {!this.state.somenteConsulta && (
-                        <Carrinho pedido={this.state.currentPedido} savePedido={this.savePedido.bind(this)} />
+                        <Carrinho ref="carrinhoBtn" pedido={this.state.currentPedido} savePedido={this.savePedido.bind(this)} />
                     )}
                 </View>
 
                 <View style={styles.fieldListProdutos}>
                     <View style={styles.row}>
                         <View style={styles.rowBreadCrumProdutos}>
-                            <TouchableOpacity style={styles.breadcrumProdutosItem} onPress={() => { Actions.pop() }}>
+                            <TouchableOpacity style={styles.breadcrumProdutosItem} onPress={() => { Actions.pop({refresh: {refresh:Math.random()}}); }}>
                                 <Text style={styles.breadcrumProdutosText}>Linhas</Text>
                             </TouchableOpacity>
                             <Text style={styles.h1}> \ Produtos Linha {this.state.linha.titulo}</Text>

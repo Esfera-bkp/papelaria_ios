@@ -74,6 +74,8 @@ export class Listagem extends Component {
     _viewPedido = (el)=>{
         AsyncStorage.setItem("@OTIMA.currentPedido",el.json);
         AsyncStorage.setItem("@OTIMA.currentIdPedido",el.id.toString());
+        console.log("IDPEDIDO");
+        console.log(el.id.toString());
         Actions.cliente();
     }
     _removePedido = (el)=>{

@@ -194,6 +194,8 @@ export class Pedido extends Component {
                 const dia = data.getDate() < 10 ? "0" + (data.getDate()) : data.getDate();
                 const dataHora = data.getFullYear() + "-" + mes + "-" + dia + " " + data.getHours() + ":" + data.getMinutes() + ":" + data.getSeconds();
                 const query = `UPDATE otm_pedidos set pedido = '${retJson.numero_pedido}', date_upd='${dataHora}' where id = ${this.state.idPedido};`;
+                console.log("###");
+                console.log(query);
                 let db = getInstance();
                 db.transaction((tx) => {
                     tx.executeSql(query, [], (tx, res) => {
