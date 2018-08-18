@@ -39,14 +39,32 @@ export class Pagamento extends Component {
 
     async componentDidMount() {
  
-       await  AsyncStorage.getItem("@OTIMA.currentPedido").then( async (value) => {
+       let value = await  AsyncStorage.getItem("@OTIMA.currentPedido");
+
+    //    await  AsyncStorage.getItem("@OTIMA.currentPedido").then( async (value) => {
             let curPed = JSON.parse(value);            
             
             await this.setState({ currentPedido: curPed,tipo_selecionado:curPed.tipo_forma_pagamento });
 
-        }).done();
+        // }).done();
 
-        await this.getFormas();
+        if(this.state.currentPedido.cliente.id=='1268'){
+            console.log(this.state.currentPedido.cliente.id);
+            console.log(this.state.currentPedido.cliente.fantasia);
+            let repArray = [];
+            const item = {
+                key:30,
+                label:'120 dias',
+                media_id: 1,
+                minimo: 750,
+                parcelado: 0,
+                parcelas: 1,
+            };
+            repArray.push(item);
+            this.setState({ formas: repArray });
+        }else{
+            await this.getFormas();
+        }
 
 
 
@@ -58,6 +76,7 @@ export class Pagamento extends Component {
 
 
     getFormas = async () => {
+        //1268 zodio
         let db = getInstance();
         let query = `SELECT id,media_id,minimo,titulo,parcelado,parcelas FROM otm_pagamentos WHERE parcelado = ${this.state.tipo_selecionado} order by parcelado,titulo`;
         db.transaction((tx) => {
