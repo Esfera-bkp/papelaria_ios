@@ -78,7 +78,8 @@ export class Pagamento extends Component {
     getFormas = async () => {
         //1268 zodio
         let db = getInstance();
-        let query = `SELECT id,media_id,minimo,titulo,parcelado,parcelas FROM otm_pagamentos WHERE parcelado = ${this.state.tipo_selecionado} order by parcelado,titulo`;
+        const tipo_selecionado = (this.state.tipo_selecionado ? this.state.tipo_selecionado : 0);
+        let query = `SELECT id,media_id,minimo,titulo,parcelado,parcelas FROM otm_pagamentos WHERE parcelado = ${tipo_selecionado} order by parcelado,titulo`;
         db.transaction((tx) => {
             tx.executeSql(query, [], (tx, results) => {
                 let qtde = results.rows.length;
@@ -92,7 +93,7 @@ export class Pagamento extends Component {
                         repArray.push(item);
                         if(x==0){
                             console.log(JSON.stringify(this.state.currentPedido.forma_pagamento));
-                            console.log(JSON.stringify(this.state.currentPedido.tipo_forma_pagamento));
+                            console.log(JSON.stringify(this.state.tipo_selecionado));
                             if(!this.state.currentPedido.forma_pagamento ){
                                 console.log('#####');
                                 console.log(item);
@@ -154,11 +155,106 @@ export class Pagamento extends Component {
         this.getFormas();
         
     }
-    _formaChanged =  (forma) => {
+    _recalculaPrecos = async (forma) => {
+        let db = getInstance();
+        
+        let curPed = { ...this.state.currentPedido };
+        
+
+
+        const media_id = (curPed.forma_pagamento.media_id ? curPed.forma_pagamento.media_id : 1);
+
+        let produtos = [];
+
+        await db.transaction(async (tx) => {
+
+
+            for (let i = 0; i < curPed.produtos.length; i++) {
+                if(curPed.produtos[i].item){
+
+                
+                let query = `SELECT a.id,a.produto_id,a.titulo,a.embalagem,a.importado,a.referencia,a.ipi, b.preco, c.reajuste, a.importado, d.multiplicador_nacional, d.multiplicador_importado
+                FROM otm_formatos a, 
+                otm_precos b,
+                otm_produtos c,
+                otm_ufs d
+                WHERE a.id = ${curPed.produtos[i].item.id} 
+                    AND b.formato_id = a.id 
+                    AND b.media_id = ${media_id} 
+                    AND c.id = a.produto_id 
+                    AND d.id = ${curPed.cliente.uf_id} 
+                    
+                ORDER BY a.order_id, a.titulo,a.id`;
+                
+                
+                let itemUpdated = curPed.produtos[i].item;
+                console.log("itemUpdated--------------");
+                console.log(curPed.produtos[i].item);
+
+                await tx.executeSql(query, [], async (tx_, results) => {
+                    let qtde = results.rows.length;
+                    let item = results.rows.item(0);
+                    if(item){
+
+                    
+                        console.log("ITEM--------------");
+                        console.log(item);
+                        
+                        item.multiplicador = this.state.currentPedido.cliente.multiplicador;
+
+                        console.log(item.multiplicador);
+                        let unitario = parseFloat(item.preco).toFixed(2);
+                        if(parseFloat(item.multiplicador)>0){
+                            unitario = unitario*parseFloat(item.multiplicador);
+                        }
+                        if(parseFloat(item.reajuste)>0){
+                            unitario = unitario*parseFloat(item.reajuste);
+                        }
+                        if(parseInt(item.importado) == 1){
+                            unitario = unitario * item.multiplicador_importado;
+                        }else{
+                            unitario = unitario * item.multiplicador_nacional;
+                        }
+                        // console.log("preco antes: "+curPed.produtos[i].item.unitario+" preco depois: "+unitario);
+                        curPed.produtos[i].item.unitario = unitario;
+                        // console.log("preco DEPOIS: "+curPed.produtos[i].item.unitario);
+                        // produtos.push(curPed.produtos[i].item);
+                    }
+
+                }, DbError); 
+            }
+            
+ 
+
+            
+
+
+
+            }
+        }, DbError);
+        
+
+        setTimeout(()=>{ 
+            // curPed.produtos = produtos;
+            console.log(curPed.produtos); 
+             this.setState({ currentPedido: curPed });
+            
+        },1000); 
+            
+        
+        
+    }
+    _formaChanged = async (forma) => {
         let curPed = { ...this.state.currentPedido };
         curPed.forma_pagamento = forma;
-        this.setState({ currentPedido: curPed });
+
+
+        await this.setState({ currentPedido: curPed });
         console.log(this.state.currentPedido);
+
+        if (curPed.produtos && curPed.produtos.length > 0) {
+            this._recalculaPrecos();            
+        }
 
 
 

@@ -50,6 +50,7 @@ export default class Carrinho extends Component {
         if (pedido.produtos && pedido.produtos.length > 0) {
 
             for (let i = 0; i < pedido.produtos.length; i++) {
+                if(pedido.produtos[i].item)
                 total += pedido.produtos[i].item.unitario *pedido.produtos[i].qtde ;
             }
             txtTotal = number_format(total, 2, ',', '.');
@@ -146,6 +147,7 @@ export default class Carrinho extends Component {
                                     (pedido.produtos && pedido.produtos.length > 0) ?
 
                                         pedido.produtos.map((el, i) => {
+                                            
                                             return (
 
                                                 <ItemCarrinho saveItem={this._saveItem.bind(this)}  removeItem={this._removeItem.bind(this)}  key={i} obj={el} pedido={pedido} />
