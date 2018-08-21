@@ -30,9 +30,10 @@ export class Pagamento extends Component {
             cliente: {},
             representante: {}
         },
+        exibeRadio:true,
 
     };
-
+    idCliente120dias = 1268;
 
 
 
@@ -48,7 +49,7 @@ export class Pagamento extends Component {
 
         // }).done();
 
-        if(this.state.currentPedido.cliente.id=='1268'){
+        if(this.state.currentPedido.cliente.id==this.idCliente120dias){
             console.log(this.state.currentPedido.cliente.id);
             console.log(this.state.currentPedido.cliente.fantasia);
             let repArray = [];
@@ -61,7 +62,7 @@ export class Pagamento extends Component {
                 parcelas: 1,
             };
             repArray.push(item);
-            this.setState({ formas: repArray });
+            this.setState({ formas: repArray,exibeRadio:false });
         }else{
             await this.getFormas();
         }
@@ -309,20 +310,25 @@ export class Pagamento extends Component {
                             <Text style={[styles.textRed, styles.textBold]}>Cancelar Pedido</Text>
                         </TouchableOpacity>
                     </View>
+                    {this.state.exibeRadio && (
                     <View style={styles.rowForm}>
                         <Text style={styles.h2}>Tipo</Text>
                     </View>
+                    )} 
+                    {this.state.exibeRadio && (
                     <View style={styles.rowForm}>
                         <RadioForm
-                            radio_props={this.state.tipos}
-                            initial={this.state.tipo_selecionado}
-                            formHorizontal={true}
-                            labelHorizontal={true}
+                        radio_props={this.state.tipos}
+                        initial={this.state.tipo_selecionado}
+                        formHorizontal={true}
+                        labelHorizontal={true}
 
-                            animation={true}
-                            onPress={this._tipoChanged}
-                        />
+                        animation={true}
+                        onPress={this._tipoChanged}
+                    />
                     </View>
+                    )}
+                        
                     <View style={styles.rowForm}>
                         <Select labelText="Opções *"  onChange={this._formaChanged} items={this.state.formas} ref="formas" ></Select>
                     </View>

@@ -165,7 +165,7 @@ export class ProdutosTipos extends Component {
                 <View style={styles.fieldListProdutos}>
                     <View style={styles.row}>
                         <View style={styles.rowBreadCrumProdutos}>
-                            <TouchableOpacity style={styles.breadcrumProdutosItem} onPress={() => { Actions.pop({refresh: {refresh:Math.random()}}); }}>
+                            <TouchableOpacity style={styles.breadcrumProdutosItem} onPress={() => { Actions.produtoslinhas({refresh: {refresh:Math.random()}}); }}>
                                 <Text style={styles.breadcrumProdutosText}>Linhas</Text>
                             </TouchableOpacity>
                             <Text style={styles.h1}> \ Produtos Linha {this.state.linha.titulo}</Text>

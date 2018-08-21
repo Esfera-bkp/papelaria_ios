@@ -283,7 +283,7 @@ export class ProdutosItens extends Component {
                                 <Text style={styles.breadcrumProdutosText}>Linhas</Text>
                             </TouchableOpacity>
                             <Text style={[styles.h1, styles.textBlue]}> \ </Text>
-                            <TouchableOpacity style={styles.breadcrumProdutosItem} onPress={() => { Actions.pop({refresh: {refresh:Math.random()}}) }}>
+                            <TouchableOpacity style={styles.breadcrumProdutosItem} onPress={() => { Actions.produtostipos({refresh: {refresh:Math.random()}}) }}>
                                 <Text style={styles.breadcrumProdutosText}>Produtos Linha {this.state.linha.titulo}</Text>
                             </TouchableOpacity>
                             <Text style={styles.h1}> \ {this.state.tipoProduto.titulo}</Text>

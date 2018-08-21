@@ -67,13 +67,14 @@ export class Listagem extends Component {
             }, DbError);
         }, DbError);
     }
-    _novoPedido = ()=>{
-        AsyncStorage.setItem("@OTIMA.currentIdPedido","0");
+    _novoPedido = async ()=>{
+        await AsyncStorage.setItem("@OTIMA.currentIdPedido","0");
+        await AsyncStorage.setItem("@OTIMA.currentPedido","{}");
         Actions.cliente();
     }
-    _viewPedido = (el)=>{
-        AsyncStorage.setItem("@OTIMA.currentPedido",el.json);
-        AsyncStorage.setItem("@OTIMA.currentIdPedido",el.id.toString());
+    _viewPedido = async (el)=>{
+        await AsyncStorage.setItem("@OTIMA.currentPedido",el.json);
+        await AsyncStorage.setItem("@OTIMA.currentIdPedido",el.id.toString());
         console.log("IDPEDIDO");
         console.log(el.id.toString());
         Actions.cliente();
@@ -128,7 +129,7 @@ export class Listagem extends Component {
                 
                 }},
             ],
-            { cancelable: true }
+            { cancelable: true } 
           )
         
     }

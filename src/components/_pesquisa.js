@@ -104,33 +104,34 @@ export default class Pesquisa extends Component {
         }
     }
 
-    _abreLinha = (el) => {
+    _abreLinha = async (el) => {
         let obj = { id: el.id, titulo: el.titulo };
-        AsyncStorage.setItem("@OTIMA.linha", JSON.stringify(obj));
+        await AsyncStorage.setItem("@OTIMA.linha", JSON.stringify(obj));
 
         Actions.produtostipos();
         this._closePesquisa();
     }
-    _abreProduto = (el) => {
+    _abreProduto = async (el) => {
         let obj = { id: el.linha_id, titulo: el.linha_titulo };
-        AsyncStorage.setItem("@OTIMA.linha", JSON.stringify(obj));
+       await AsyncStorage.setItem("@OTIMA.linha", JSON.stringify(obj));
 
         
         let obj2 = { id: el.id, titulo: el.titulo };
-        AsyncStorage.setItem("@OTIMA.tipoProduto", JSON.stringify(obj2));
+       await  AsyncStorage.setItem("@OTIMA.tipoProduto", JSON.stringify(obj2));
 
         Actions.produtositens();
         this._closePesquisa();
     }
-    _abreCor = (el) => {
-        let obj = { id: el.linha_id, titulo: el.linha_titulo };
-        AsyncStorage.setItem("@OTIMA.linha", JSON.stringify(obj));
+    _abreCor = async (el) => {
+        let obj = { id: el.linha_id, titulo: el.linha_titulo }; 
+       await AsyncStorage.setItem("@OTIMA.linha", JSON.stringify(obj));
 
         
         let obj2 = { id: el.produto_id, titulo: el.produto_titulo };
-        AsyncStorage.setItem("@OTIMA.tipoProduto", JSON.stringify(obj2));
+       await AsyncStorage.setItem("@OTIMA.tipoProduto", JSON.stringify(obj2));
 
-        Actions.produtositens();
+        
+        Actions.produtositens({refresh: {refresh:Math.random()}});
         this._closePesquisa();
     }
 
@@ -162,7 +163,7 @@ export default class Pesquisa extends Component {
                             </View>
                             <View style={styles.modalBody}>
                                 <View style={styles.rowForm}>
-                                    <TextField labelText="Pesquis" hideLabel placeholder="Pesquisar" col="12" onChange={(criterio) => { this.setState({ criterio,comResultado:false,linhas:[],produtos:[],cores:[] }) }} value={this.state.criterio}  ></TextField>
+                                    <TextField labelText="Pesquisa" hideLabel  placeholder="Pesquisar" col="12" onChange={(criterio) => { this.setState({ criterio,comResultado:false,linhas:[],produtos:[],cores:[] }) }} value={this.state.criterio}  ></TextField>
                                 </View>
 
                                 <TouchableOpacity style={[styles.btnFinalizar, { width: 150, alignSelf: 'flex-end' }]} onPress={this._consultar} >
