@@ -140,7 +140,7 @@ export class Pedido extends Component {
             await AsyncStorage.setItem("@OTIMA.currentPedido", JSON.stringify(this.state.currentPedido));
             await salvaOrcamento(this.state.currentPedido);
             
-            this.setState({ isLoadingOrcamento: true });
+            await this.setState({ isLoadingOrcamento: true });
 
             const obj = await this._preparaObjeto();
 
@@ -158,7 +158,7 @@ export class Pedido extends Component {
             });
             const retJson = await pingCall.json();
             console.log(retJson);
-            this.setState({ isLoadingOrcamento: false, modalVisible: true ,txtAlert:"Orçamento"});
+            await this.setState({ isLoadingOrcamento: false, modalVisible: true ,txtAlert:"Orçamento"});
 
         }
 

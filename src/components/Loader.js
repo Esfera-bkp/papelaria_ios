@@ -143,7 +143,7 @@ export  class Loader extends Component {
                 this.setState({current:this.state.current+1}); 
                 
                 
-                if(this.state.total == this.state.current){
+                if((this.state.total-1) <= this.state.current){
                     // this._showLogin();
                     clearInterval(this.interval); 
                     this._downloadImages();
@@ -193,7 +193,7 @@ export  class Loader extends Component {
             if(await RNFS.exists(dirs.DocumentDir + '/'+url)){
                 await  this.setState({imagesDownloaded:this.state.imagesDownloaded+1}); 
   
-                if(this.state.imagesDownloaded == this.state.qtdeImages){
+                if(this.state.imagesDownloaded >= (this.state.qtdeImages-1)){
                   clearInterval(this.interval); 
                   this._showLogin();                
                   }
@@ -215,7 +215,7 @@ export  class Loader extends Component {
             //   console.log('The file saved to ', res.path());
               await this.setState({imagesDownloaded:this.state.imagesDownloaded+1}); 
 
-              if(this.state.imagesDownloaded == this.state.qtdeImages){
+              if(this.state.imagesDownloaded >= (this.state.qtdeImages-1)){
                 clearInterval(this.interval); 
                 this._showLogin();                
                 }
@@ -226,7 +226,7 @@ export  class Loader extends Component {
                 
                 await  this.setState({imagesDownloaded:this.state.imagesDownloaded+1}); 
   
-                if(this.state.imagesDownloaded == this.state.qtdeImages){
+                if(this.state.imagesDownloaded >= (this.state.qtdeImages-1)){
                   clearInterval(this.interval); 
                   this._showLogin();                
                   }
