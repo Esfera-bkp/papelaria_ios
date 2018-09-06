@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { View, ScrollView, Text, TouchableOpacity, AsyncStorage, Image, TextInput, Modal, ActivityIndicator } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity, AsyncStorage, Image, TextInput, Modal, ActivityIndicator,Alert } from 'react-native';
 
 import { connect } from 'react-redux';
 
@@ -155,10 +155,31 @@ export class Pedido extends Component {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ object: obj })
-            });
-            const retJson = await pingCall.json();
-            console.log(retJson);
-            await this.setState({ isLoadingOrcamento: false, modalVisible: true ,txtAlert:"Orçamento"});
+            }).catch(err => {
+                console.log('salvaOrcamentoPressed Error: ', err)
+              });
+            // console.log("salvaOrcamentoPressed pingCall");
+            // console.log(pingCall);
+            if(pingCall){
+
+                
+                const retJson = await pingCall.json();
+                console.log(retJson);
+                await this.setState({ isLoadingOrcamento: false, modalVisible: true ,txtAlert:"Orçamento"});
+            }else{
+                console.log('salvaOrcamentoPressed Error: '); 
+                Alert.alert(
+                    'Atenção',
+                    "O orçamento foi salvo, porém não foi possivel enviá-lo pois houve uma falha na comunicação.",
+                    [
+                      
+                      {text: 'Ok', onPress: () => {console.log('Cancel Pressed');this.setState({ modalVisible: false });}, style: 'cancel'},
+                      
+                    ],
+                    { cancelable: true }
+                  )
+                await this.setState({ isLoadingOrcamento: false});
+            }
 
         }
 
@@ -185,27 +206,48 @@ export class Pedido extends Component {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ object: obj })
-            });
-            const retJson = await pingCall.json();
-            console.log(retJson);
-            if (retJson.numero_pedido) {
-                let data = new Date();
-                const mes = data.getMonth() + 1 < 10 ? "0" + (data.getMonth() + 1) : data.getMonth() + 1;
-                const dia = data.getDate() < 10 ? "0" + (data.getDate()) : data.getDate();
-                const dataHora = data.getFullYear() + "-" + mes + "-" + dia + " " + data.getHours() + ":" + data.getMinutes() + ":" + data.getSeconds();
-                const query = `UPDATE otm_pedidos set pedido = '${retJson.numero_pedido}', date_upd='${dataHora}' where id = ${this.state.idPedido};`;
-                console.log("###");
-                console.log(query);
-                let db = getInstance();
-                db.transaction((tx) => {
-                    tx.executeSql(query, [], (tx, res) => {
-                        console.log("rowsAffected: " + res.rowsAffected + " -- pedido Saved");
+            }).catch(err => {
+                console.log('salvaOrcamentoPressed Error: ', err)
+              });
 
-                        this.setState({ isLoading: false, modalVisible: true,txtAlert:"Pedido" });
+            if(pingCall){
+
+                const retJson = await pingCall.json();
+                console.log(retJson);
+                if (retJson.numero_pedido) {
+                    let data = new Date();
+                    const mes = data.getMonth() + 1 < 10 ? "0" + (data.getMonth() + 1) : data.getMonth() + 1;
+                    const dia = data.getDate() < 10 ? "0" + (data.getDate()) : data.getDate();
+                    const dataHora = data.getFullYear() + "-" + mes + "-" + dia + " " + data.getHours() + ":" + data.getMinutes() + ":" + data.getSeconds();
+                    const query = `UPDATE otm_pedidos set pedido = '${retJson.numero_pedido}', date_upd='${dataHora}' where id = ${this.state.idPedido};`;
+                    console.log("###");
+                    console.log(query);
+                    let db = getInstance();
+                    db.transaction((tx) => {
+                        tx.executeSql(query, [], (tx, res) => {
+                            console.log("rowsAffected: " + res.rowsAffected + " -- pedido Saved");
+                            
+                            this.setState({ isLoading: false, modalVisible: true,txtAlert:"Pedido" });
+                        }, DbError);
                     }, DbError);
-                }, DbError);
+                }
+            }else{
+            
+                console.log('_enviar Error: '); 
+                Alert.alert(
+                    'Atenção',
+                    "O pedido foi salvo, porém não foi possivel enviá-lo pois houve uma falha na comunicação.",
+                    [
+                      
+                      {text: 'Ok', onPress: () => {console.log('Cancel Pressed');this.setState({ modalVisible: false });}, style: 'cancel'},
+                      
+                    ],
+                    { cancelable: true }
+                  )
+                await this.setState({ isLoading: false});
+            
             }
-
+                
         }
 
 
