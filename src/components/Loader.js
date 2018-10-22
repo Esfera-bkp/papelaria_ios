@@ -134,7 +134,7 @@ export  class Loader extends Component {
       _executeQ = (query) => {
         let db =   getInstance();
         if(query.indexOf('otm_usuarios') > 0){
-            // console.log(query);
+            //  console.log(query);
         }
         db.transaction((tx) => {
             tx.executeSql(query, [], (tx, results) => {

@@ -84,7 +84,7 @@ export class ProdutosItens extends Component {
             AND d.id = ${this.state.currentPedido.cliente.uf_id} 
             
         ORDER BY a.order_id, a.titulo,a.id`;
-        // console.log(query);
+       
         await db.transaction(async (tx) => {
             await tx.executeSql(query, [], async (tx_, results) => {
                 let qtde = results.rows.length;
@@ -159,6 +159,7 @@ export class ProdutosItens extends Component {
 
                     
                 } else {
+                    console.log(query);
                     Alert.alert(
                         'Atenção',
                         'Nenhum item cadastrado no produto! '+this.state.tipoProduto.id,

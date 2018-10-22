@@ -27,6 +27,7 @@ export class PrazoEmbarque extends Component {
             data_embarque:"",
             prazo_embarque:{},
         },
+        
 
     };
 

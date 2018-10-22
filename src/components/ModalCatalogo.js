@@ -82,7 +82,7 @@ export default class ModalCatalogo extends Component {
         return (
 
             <Modal animationType="fade" transparent={true} visible={this.props.visible} >
-                <View style={styles.overlay}>
+                <View style={styles.overlay}> 
                     <View style={styles.cartView}>
                         <View style={styles.cartHeader}>
                             <Text style={styles.title}>Enviar catálogo</Text>
