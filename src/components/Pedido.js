@@ -43,24 +43,39 @@ export class Pedido extends Component {
 
 
     async componentDidMount() {
+        
+        // AsyncStorage.getItem("@OTIMA.currentPedido").then(async (value) => {
+        //     let curPed = JSON.parse(value);
+        //     await this.setState({ currentPedido: curPed });
 
-        AsyncStorage.getItem("@OTIMA.currentPedido").then(async (value) => {
-            let curPed = JSON.parse(value);
-            await this.setState({ currentPedido: curPed });
+        //     this.calculaValores();
+        // }).done();
 
-            this.calculaValores();
-        }).done();
+        let curPedJ = await AsyncStorage.getItem("@OTIMA.currentPedido");
+        let curPed = JSON.parse(curPedJ);
 
-        AsyncStorage.getItem("@OTIMA.currentIdPedido").then(async (value) => {
-            if (value) {
-                await this.setState({ idPedido: value });
-            }
+        let userJ = await AsyncStorage.getItem("@OTIMA.user");
+        let user = JSON.parse(userJ);
+        
+        let id_pedido = await AsyncStorage.getItem("@OTIMA.currentIdPedido");
+        console.log("IDPEDIDO******");
+        console.log(id_pedido);
 
-        }).done();
-        AsyncStorage.getItem("@OTIMA.user").then(async (value) => {
-            let user = JSON.parse(value);
-            await this.setState({ idUsuario: user.id });
-        }).done();
+        await this.setState({ idPedido: id_pedido,idUsuario: user.id , currentPedido: curPed  });
+        
+
+        this.calculaValores();
+
+        // .then(async (value) => {
+        //     if (value) {
+        //         await this.setState({ idPedido: value });
+        //     }
+
+        // }).done();
+        // AsyncStorage.getItem("@OTIMA.user").then(async (value) => {
+        //     let user = JSON.parse(value);
+        //     await this.setState({ idUsuario: user.id });
+        // }).done();
 
 
 
@@ -130,6 +145,7 @@ export class Pedido extends Component {
                 representante: this.state.currentPedido.representante,
                 versao: this.props.Versao,
                 versaodata: this.props.VersaoData,
+                currentPedido: this.state.currentPedido,
             };
 
     }

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { View, StyleSheet, Text, TouchableOpacity,Image,AsyncStorage,ScrollView,Alert } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity,Image,AsyncStorage,ScrollView,Alert,ActivityIndicator } from 'react-native';
 
 import { connect } from 'react-redux';
 
@@ -14,25 +14,36 @@ export class Listagem extends Component {
     state = {
         orderby:"data",
         canEdit:false,
+        isLoadingBaixar:false,
         consultaVisible:false,
         modalCatalogoVisible:false,
         user:{},
         pedidos: [
 
         ],
+        numPedidos: [
+
+        ],
     };
 
-    componentDidMount = () =>{
+    async componentDidMount() {
         AsyncStorage.setItem("@OTIMA.currentPedido","{}");
         AsyncStorage.setItem("@OTIMA.currentIdPedido","0");
         AsyncStorage.setItem("@OTIMA.somenteConsulta","0");
-        AsyncStorage.getItem("@OTIMA.user").then(async (value) => {
-            let user = JSON.parse(value);
-            await this.setState({ user: user });
+
+        let userJ = await AsyncStorage.getItem("@OTIMA.user");
+        let user = JSON.parse(userJ);
+        await this.setState({ user: user });
 
             this._loadPedidos();
 
-        }).done();
+        // AsyncStorage.getItem("@OTIMA.user").then(async (value) => {
+        //     let user = JSON.parse(value);
+        //     await this.setState({ user: user });
+
+        //     this._loadPedidos();
+
+        // }).done();
 
 
     }
@@ -46,6 +57,7 @@ export class Listagem extends Component {
                 let qtde = results.rows.length;
                 if (qtde > 0) {
                     let itemsArray = [];
+                    let numPedidos = [];
 
                     for (let x = 0; x < qtde; x++) {
                         let item = results.rows.item(x);                        
@@ -53,12 +65,9 @@ export class Listagem extends Component {
                         let data =  dataHora[0].split('-');
                         item.date_upd = data[2]+"/"+data[1]+"/"+data[0] + " "+dataHora[1];
                         itemsArray.push(item);
-
+                        numPedidos.push(item.pedido);
                     }
-                    this.setState({ pedidos: itemsArray });
-
-                  
-
+                    this.setState({ pedidos: itemsArray,numPedidos:numPedidos });
 
                 }
 
@@ -168,6 +177,98 @@ export class Listagem extends Component {
             </TouchableOpacity>
         )
     }
+    doBaixar = async () =>{
+
+
+        await this.setState({ isLoadingBaixar: true });
+
+            
+
+            
+
+            let url = `${this.props.UrlServer}app/getPedidos-json.php?usuario_id=${this.state.user.id}`;
+            console.log(url);
+            const pingCall = await fetch(url, {
+                method: 'post',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ usuario_id: this.state.user.id })
+            }).catch(err => {
+                console.log('getPedidos Error: ', err)
+              });
+            
+            if(pingCall){
+
+                
+                const retJson = await pingCall.json();
+                console.log(retJson);
+
+                console.log(this.state.numPedidos);
+                let db = getInstance();
+
+                for(let i =0; i < retJson.pedidos.length ; i++){
+                    const pedido = retJson.pedidos[i];
+                    let pode = true;
+                    for(let x =0; x < this.state.numPedidos.length ; x++){
+                        if(pedido.numero == this.state.numPedidos[x]){
+                            pode = false;
+                        }
+                    }
+
+                    if(pode){
+                        //pode inserir
+
+                        let query = "INSERT INTO otm_pedidos (id,pedido,json, usuario_id,date_upd) values (";
+                        query += "'"+pedido.id+"',";
+                        query += "'"+pedido.numero+"',";
+                        query += "'"+pedido.json_app+"',";
+                        query += "'"+pedido.usuario_id+"',";
+                        query += "'"+pedido.date_upd+"'";
+                        query += ");";
+                        console.log(query);
+                        await db.transaction( async (tx) => {
+                           await tx.executeSql(query, [],  async (tx, results) => {
+        
+                              
+                                
+                            }, DbError);
+                        }, DbError);
+                    }
+
+
+                }
+
+                this._loadPedidos();
+                  
+                    
+                    
+
+
+
+                await this.setState({ isLoadingBaixar: false});
+            }else{
+                console.log('getPedidos Error: '); 
+                
+                await this.setState({ isLoadingBaixar: false});
+            }
+
+    }
+    baixar = () =>{
+        Alert.alert(
+            'Atenção',
+            'Deseja trazer todos os seus pedidos já enviados?',
+            [
+              
+              {text: 'Não', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+              {text: 'Sim', onPress: () => {
+                    this.doBaixar();                
+                }},
+            ],
+            { cancelable: true }
+          )
+    }
     toggleRemove = () =>{
         if(this.state.canEdit){
             this.setState({canEdit:false});
@@ -176,11 +277,12 @@ export class Listagem extends Component {
         }
     }
     render() {
-        const { canEdit } = this.state;
+        
+        const { canEdit,isLoadingBaixar } = this.state;
         return (
             <View style={styles.container} >
                 <View style={styles.header} >
-                    <View style={styles.buttomContainer} >
+                    <View style={[styles.buttomContainer,{justifyContent: 'flex-start'}]} >
                     <TouchableOpacity style={styles.btnCancelar} onPress={this.toggleRemove.bind(this) }>
                             {!canEdit && (
                                     
@@ -191,6 +293,23 @@ export class Listagem extends Component {
                                 <Text style={[styles.textRed, styles.textBold]}>Fechar</Text>
                                   
                                 )}
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.btnBaixar} onPress={this.baixar.bind(this) }>
+                        {!isLoadingBaixar && (
+                            <Text style={[styles.textBaixar, styles.textBold]}>Baixar Pedidos</Text>
+                                )}
+                                {isLoadingBaixar && (
+                                    <ActivityIndicator
+
+                                        color="#fff"
+
+                                    />
+                                )}
+                                    
+                            
+                           
+
+                           
                         </TouchableOpacity>
                     </View>
                     <View style={styles.buttomContainer} >
@@ -256,7 +375,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginRight:14,
     },
-   
+    btnBaixar:{
+        marginLeft:20,
+        paddingHorizontal: 10,
+        backgroundColor:'#ccc',
+        borderRadius:4,
+        height:35,
+        paddingHorizontal:20,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },  
     textRed: {
         color: '#ED1C24',
     },
@@ -301,6 +429,11 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight:'bold',
         paddingLeft:10,
+    },
+    textBaixar: {
+        color: '#fff',
+        fontWeight:'bold',
+        
     },
     blueButton:{
         backgroundColor:'#1991EB',
