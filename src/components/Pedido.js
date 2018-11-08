@@ -174,12 +174,14 @@ export class Pedido extends Component {
             }).catch(err => {
                 console.log('salvaOrcamentoPressed Error: ', err)
               });
-            // console.log("salvaOrcamentoPressed pingCall");
-            // console.log(pingCall);
+            console.log("salvaOrcamentoPressed pingCall");
+            console.log(pingCall);
+            const retJson = await pingCall.json();
+            console.log(retJson.ok);
+
             if(pingCall){
 
                 
-                const retJson = await pingCall.json();
                 console.log(retJson);
                 await this.setState({ isLoadingOrcamento: false, modalVisible: true ,txtAlert:"Orçamento"});
             }else{
@@ -567,6 +569,8 @@ export class Pedido extends Component {
 
                             </TouchableOpacity>
                         </View>
+                    </View>
+                    <View style={[{height:300,width:300}]}>
                     </View>
 
 

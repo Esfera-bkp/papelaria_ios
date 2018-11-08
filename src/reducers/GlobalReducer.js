@@ -1,7 +1,7 @@
 const INITIAL_STATE = {
     UrlServer:'https://londigital.com.br/subdomains/clients.londigital.com.br/otima/papelaria/public_html/',
-    Versao:'2.0.24',
-    VersaoData:'27/10/2018',
+    Versao:'2.0.26',
+    VersaoData:'08/11/2018',
 }
 export default (state = INITIAL_STATE,action) =>{
 

@@ -5,7 +5,7 @@ import { View, StyleSheet, Text, Modal,Image,ActivityIndicator } from 'react-nat
 import {connect} from 'react-redux';
 import {verificaBanco,getInstance,DbErrorT,DbError} from '../classes/DbManager';
 
-import RNFetchBlob from 'rn-fetch-blob'
+import RNFetchBlob from 'react-native-fetch-blob'
 import RNFS from 'react-native-fs';
 export  class Loader extends Component {
 

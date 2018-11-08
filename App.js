@@ -14,7 +14,7 @@ import ProdutosTipos from './src/components/ProdutosTipos';
 import ProdutosItens from './src/components/ProdutosItens';
 import Pedido from './src/components/Pedido';
 
-import reducers from './src/reducers';
+import reducers from './src/reducers'; 
 
 
 
@@ -41,7 +41,7 @@ export default class App extends Component {
               <Scene key="produtostipos" hideNavBar component={ProdutosTipos}     title="Cliente" />
               <Scene key="produtositens"   hideNavBar component={ProdutosItens}     title="Cliente" />
             </Scene>
-            <Scene key="pedido"   hideNavBar component={Pedido}   title="Pedido" />
+            <Scene key="pedido"    hideNavBar component={Pedido}   title="Pedido" />
           </Scene>
         </Router>
         

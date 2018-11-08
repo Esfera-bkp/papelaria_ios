@@ -129,12 +129,12 @@ export const  getInstance=()=>{
 
         let query = "";
 
-        let jsonPedido = JSON.stringify(pedido);
+        let jsonPedido = await JSON.stringify(pedido);
         jsonPedido = jsonPedido.split("'").join("''");
         const idPedido = await AsyncStorage.getItem("@OTIMA.currentIdPedido");
         
         const usuarioJson = await AsyncStorage.getItem("@OTIMA.user");
-        const user = JSON.parse(usuarioJson);
+        const user = await JSON.parse(usuarioJson);
         
         console.log('idPedido');
         console.log(idPedido);

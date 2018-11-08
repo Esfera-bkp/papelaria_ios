@@ -24,7 +24,7 @@ export  class Inicial extends Component {
         console.log('updateApk');
         const url = 'itms-services://?action=download-manifest&url=https://londigital.com.br/manifests/otima_papelariav2/manifest.plist';
         
-        
+         
 
         Linking.canOpenURL(url).then(supported => {
             if (!supported) {
@@ -38,16 +38,16 @@ export  class Inicial extends Component {
       }
       componentDidMount = async() => {
         KeepAwake.activate();
-
+        await this.setState({loaderVisible:false});
         let url = `${this.props.UrlServer}app/v2/versao.json`;
         console.log(url); 
         const pingCall = await fetch(url);
         const txt = await pingCall.json();
-        if(txt.versao != this.props.Versao){
+        if(txt.versao != this.props.Versao){ 
             console.log(this.props.Versao); 
             console.log(txt.versao); 
-            this.setState({loaderVisible:false});
-            Alert.alert(
+            await this.setState({loaderVisible:false,loginVisible:false});
+            await Alert.alert(
                 'Atenção',
                 "Versão desatualizada, aperte ok para atualizar",
                 [
@@ -58,6 +58,8 @@ export  class Inicial extends Component {
                 { cancelable: false }
               )
 
+        }else{
+            await this.setState({loaderVisible:true});
         }
 
         

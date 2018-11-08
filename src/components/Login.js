@@ -36,6 +36,22 @@ export class Login extends Component {
     }
 
     async componentDidMount() {
+
+
+        AsyncStorage.setItem("@OTIMA.currentPedido","{}");
+        AsyncStorage.setItem("@OTIMA.currentIdPedido","0");
+        AsyncStorage.setItem("@OTIMA.somenteConsulta","0");
+
+        
+        let userJ = await AsyncStorage.getItem("@OTIMA.user");
+        console.log("################");
+        console.log(userJ);
+        if(userJ){
+            let user = JSON.parse(userJ);
+            
+            this.setState({emailText:user.email});    
+        }
+
         // const jsonObj =  JSON.parse(await AsyncStorage.getItem('@OTIMA.state'));
         // console.log(jsonObj);
 
