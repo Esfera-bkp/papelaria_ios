@@ -150,7 +150,7 @@ export class Pedido extends Component {
 
     }
     salvaOrcamentoPressed = async () => {
-        // setTimeout(() => { Actions.listagem(); }, 300);
+        // setTimeout(() => { Actions.listagem({refresh: {refresh:Math.random()}} ) ; }, 300);
         if (!this.state.isLoadingOrcamento) {
             
             await AsyncStorage.setItem("@OTIMA.currentPedido", JSON.stringify(this.state.currentPedido));
@@ -439,7 +439,7 @@ export class Pedido extends Component {
                     <View style={styles.fieldListProdutos}>
                         <View style={styles.row}>
                             <Text style={styles.h1}>Pedido</Text>
-                            <TouchableOpacity style={styles.btnCancelar} onPress={() => { Actions.listagem() }}>
+                            <TouchableOpacity style={styles.btnCancelar} onPress={() => { Actions.listagem({refresh: {refresh:Math.random()}} )  }}>
                                 <Text style={[styles.textRed, styles.textBold]}>Cancelar Pedido</Text>
                             </TouchableOpacity>
                         </View>
@@ -593,7 +593,7 @@ export class Pedido extends Component {
                                 <TouchableOpacity style={[styles.saveButton, { width: 100 }]} onPress={() => { this.setState({ modalVisible: false }) }} >
                                     <Text style={styles.buttonText} >Não</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={[styles.submitButton, { width: 100 }]} onPress={() => { this.setState({ modalVisible: false }); Actions.listagem() }} >
+                                <TouchableOpacity style={[styles.submitButton, { width: 100 }]} onPress={() => { this.setState({ modalVisible: false }); Actions.listagem({refresh: {refresh:Math.random()}} )  }} >
                                     <Text style={styles.buttonText} >Sim</Text>
                                 </TouchableOpacity>
                             </View>

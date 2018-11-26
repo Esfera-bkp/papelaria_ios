@@ -25,6 +25,18 @@ export class Listagem extends Component {
 
         ],
     };
+    async componentWillReceiveProps(){
+        await AsyncStorage.setItem("@OTIMA.currentPedido","{}");
+        await AsyncStorage.setItem("@OTIMA.currentIdPedido","0");
+        await AsyncStorage.setItem("@OTIMA.somenteConsulta","0");
+
+        let userJ = await AsyncStorage.getItem("@OTIMA.user");
+        let user = JSON.parse(userJ);
+        await this.setState({ user: user });
+
+        await this._loadPedidos();
+        
+    }
 
     async componentDidMount() {
         AsyncStorage.setItem("@OTIMA.currentPedido","{}");
@@ -35,7 +47,7 @@ export class Listagem extends Component {
         let user = JSON.parse(userJ);
         await this.setState({ user: user });
 
-            this._loadPedidos();
+            await this._loadPedidos();
 
         // AsyncStorage.getItem("@OTIMA.user").then(async (value) => {
         //     let user = JSON.parse(value);

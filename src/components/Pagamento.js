@@ -306,7 +306,7 @@ export class Pagamento extends Component {
                 <ScrollView contentContainerStyle={styles.fieldList}>
                     <View style={styles.row}>
                         <Text style={styles.h1}>Forma de pagamento</Text>
-                        <TouchableOpacity style={styles.btnCancelar} onPress={() => { Actions.listagem() }}>
+                        <TouchableOpacity style={styles.btnCancelar} onPress={() => {Actions.listagem({refresh: {refresh:Math.random()}} )  }}>
                             <Text style={[styles.textRed, styles.textBold]}>Cancelar Pedido</Text>
                         </TouchableOpacity>
                     </View>

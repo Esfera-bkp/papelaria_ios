@@ -1414,7 +1414,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = grafica.Papelaria;
+				PRODUCT_BUNDLE_IDENTIFIER = grafica.otima.Papelaria;
 				PRODUCT_NAME = Papelaria;
 				TARGETED_DEVICE_FAMILY = 2;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1441,7 +1441,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = grafica.Papelaria;
+				PRODUCT_BUNDLE_IDENTIFIER = grafica.otima.Papelaria;
 				PRODUCT_NAME = Papelaria;
 				TARGETED_DEVICE_FAMILY = 2;
 				VERSIONING_SYSTEM = "apple-generic";

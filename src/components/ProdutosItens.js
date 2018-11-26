@@ -289,7 +289,7 @@ export class ProdutosItens extends Component {
                             </TouchableOpacity>
                             <Text style={styles.h1}> \ {this.state.tipoProduto.titulo}</Text>
                         </View> 
-                        <TouchableOpacity style={styles.btnCancelar} onPress={() => { Actions.listagem() }}>
+                        <TouchableOpacity style={styles.btnCancelar} onPress={() => { Actions.listagem({refresh: {refresh:Math.random()}} )  }}>
                             <Text style={[styles.textRed, styles.textBold]}>Cancelar Pedido</Text>
                         </TouchableOpacity>
                     </View>

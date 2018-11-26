@@ -49,14 +49,15 @@ export  class Inicial extends Component {
             await this.setState({loaderVisible:false,loginVisible:false});
             await Alert.alert(
                 'Atenção',
-                "Versão desatualizada, aperte ok para atualizar",
+                "Atualização necessária, o programa irá se atualizar, sozinho",
                 [
                   
-                  {text: 'Ok', onPress: this.updateApk.bind(this), style: 'cancel'},
+                  {text: 'Ok', onPress: ()=>{}, style: 'cancel'},
                   
                 ],
                 { cancelable: false }
-              )
+              );
+              await this.updateApk.bind(this);
 
         }else{
             await this.setState({loaderVisible:true});

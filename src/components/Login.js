@@ -92,7 +92,7 @@ export class Login extends Component {
                             
 
                             
-                            Actions.listagem();
+                            Actions.listagem({refresh: {refresh:Math.random()}} ) ;
                         }else{
                             alert('Senha incorreta!');
                         }

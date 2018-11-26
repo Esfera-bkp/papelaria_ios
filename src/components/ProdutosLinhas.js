@@ -156,7 +156,7 @@ export class ProdutosLinhas extends Component {
                 <View style={styles.fieldListProdutos}>
                     <View style={styles.row}>
                         <Text style={styles.h1}>Linhas</Text>
-                        <TouchableOpacity style={styles.btnCancelar} onPress={() => { Actions.listagem() }}>
+                        <TouchableOpacity style={styles.btnCancelar} onPress={() => { Actions.listagem({refresh: {refresh:Math.random()}} )  }}>
                             <Text style={[styles.textRed, styles.textBold]}>Cancelar Pedido</Text>
                         </TouchableOpacity>
                     </View>

@@ -37,7 +37,7 @@ export default class App extends Component {
             <Scene key="pagamento"  hideNavBar component={Pagamento}  title="Cliente" />
             <Scene key="prazoembarque" hideNavBar component={PrazoEmbarque}   title="Cliente" />
             <Scene key="produtos"   >
-              <Scene key="produtoslinhas" hideNavBar component={ProdutosLinhas}     title="Cliente" />
+              <Scene key="produtoslinhas"  hideNavBar component={ProdutosLinhas}     title="Cliente" />
               <Scene key="produtostipos" hideNavBar component={ProdutosTipos}     title="Cliente" />
               <Scene key="produtositens"   hideNavBar component={ProdutosItens}     title="Cliente" />
             </Scene>
